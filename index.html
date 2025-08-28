@@ -3,152 +3,159 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ebook Online - Petualangan di Dunia Digital</title>
-    <link rel="stylesheet" href="styles.css">
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <title>Rekap Nilai Siswa</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
-    <div class="ebook-container">
-        <!-- Header -->
-        <header class="ebook-header">
-            <div class="header-content">
-                <div class="logo">
-                    <i class="fas fa-book-open"></i>
-                    <span>Digital Library</span>
-                </div>
-                <nav class="nav-menu">
-                    <a href="#" class="nav-link active">Baca</a>
-                    <a href="#" class="nav-link">Perpustakaan</a>
-                    <a href="#" class="nav-link">Tentang</a>
-                </nav>
-                <div class="user-controls">
-                    <button class="btn btn-outline">
-                        <i class="fas fa-user"></i>
-                        Masuk
-                    </button>
-                </div>
-            </div>
+    <div class="container">
+        <header class="header">
+            <h1><i class="fas fa-graduation-cap"></i> Rekap Nilai Siswa</h1>
+            <p>Sistem Penilaian: Ujian 60% + Tugas Harian 40% + Bonus Kehadiran 10%</p>
         </header>
 
-        <!-- Main Content -->
-        <main class="ebook-main">
-            <!-- Book Info -->
-            <div class="book-info">
-                <div class="book-cover">
-                    <img src="https://via.placeholder.com/200x280/4F46E5/FFFFFF?text=Cover" alt="Cover Buku">
+        <div class="controls">
+            <button class="btn btn-primary" onclick="addStudent()">
+                <i class="fas fa-plus"></i> Tambah Siswa
+            </button>
+            <button class="btn btn-secondary" onclick="exportToExcel()">
+                <i class="fas fa-download"></i> Export Excel
+            </button>
+        </div>
+
+        <div class="summary-cards">
+            <div class="card summary-card">
+                <div class="card-icon">
+                    <i class="fas fa-users"></i>
                 </div>
-                <div class="book-details">
-                    <h1 class="book-title">Petualangan di Dunia Digital</h1>
-                    <p class="book-author">Oleh: Ahmad Digital</p>
-                    <div class="book-meta">
-                        <span class="meta-item">
-                            <i class="fas fa-clock"></i>
-                            15 menit baca
-                        </span>
-                        <span class="meta-item">
-                            <i class="fas fa-eye"></i>
-                            1,234 pembaca
-                        </span>
-                        <span class="meta-item">
-                            <i class="fas fa-star"></i>
-                            4.8/5
-                        </span>
+                <div class="card-content">
+                    <h3>Total Siswa</h3>
+                    <p id="totalStudents">0</p>
+                </div>
+            </div>
+            <div class="card summary-card">
+                <div class="card-icon">
+                    <i class="fas fa-star"></i>
+                </div>
+                <div class="card-content">
+                    <h3>Rata-rata Nilai</h3>
+                    <p id="averageGrade">0.00</p>
+                </div>
+            </div>
+            <div class="card summary-card">
+                <div class="card-icon">
+                    <i class="fas fa-trophy"></i>
+                </div>
+                <div class="card-content">
+                    <h3>Nilai Tertinggi</h3>
+                    <p id="highestGrade">0.00</p>
+                </div>
+            </div>
+            <div class="card summary-card">
+                <div class="card-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <div class="card-content">
+                    <h3>Nilai Terendah</h3>
+                    <p id="lowestGrade">0.00</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <table class="grade-table">
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Nama Siswa</th>
+                        <th>Nilai Ujian</th>
+                        <th>Nilai Tugas</th>
+                        <th>Kehadiran</th>
+                        <th>Nilai Akhir</th>
+                        <th>Grade</th>
+                        <th>Status</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody id="studentTableBody">
+                    <!-- Data siswa akan diisi melalui JavaScript -->
+                </tbody>
+            </table>
+        </div>
+
+        <div class="grade-distribution">
+            <h3>Distribusi Nilai</h3>
+            <div class="grade-bars">
+                <div class="grade-bar">
+                    <span class="grade-label">A (90-100)</span>
+                    <div class="bar-container">
+                        <div class="bar" id="gradeA" style="width: 0%"></div>
                     </div>
-                    <div class="book-actions">
-                        <button class="btn btn-primary">
-                            <i class="fas fa-bookmark"></i>
-                            Simpan
-                        </button>
-                        <button class="btn btn-secondary">
-                            <i class="fas fa-share"></i>
-                            Bagikan
-                        </button>
+                    <span class="grade-count" id="countA">0</span>
+                </div>
+                <div class="grade-bar">
+                    <span class="grade-label">B (80-89)</span>
+                    <div class="bar-container">
+                        <div class="bar" id="gradeB" style="width: 0%"></div>
                     </div>
+                    <span class="grade-count" id="countB">0</span>
+                </div>
+                <div class="grade-bar">
+                    <span class="grade-label">C (70-79)</span>
+                    <div class="bar-container">
+                        <div class="bar" id="gradeC" style="width: 0%"></div>
+                    </div>
+                    <span class="grade-count" id="countC">0</span>
+                </div>
+                <div class="grade-bar">
+                    <span class="grade-label">D (60-69)</span>
+                    <div class="bar-container">
+                        <div class="bar" id="gradeD" style="width: 0%"></div>
+                    </div>
+                    <span class="grade-count" id="countD">0</span>
+                </div>
+                <div class="grade-bar">
+                    <span class="grade-label">E (<60)</span>
+                    <div class="bar-container">
+                        <div class="bar" id="gradeE" style="width: 0%"></div>
+                    </div>
+                    <span class="grade-count" id="countE">0</span>
                 </div>
             </div>
+        </div>
+    </div>
 
-            <!-- Reading Controls -->
-            <div class="reading-controls">
-                <div class="control-group">
-                    <button class="control-btn" id="font-decrease">
-                        <i class="fas fa-minus"></i>
-                    </button>
-                    <span class="font-size-display">16px</span>
-                    <button class="control-btn" id="font-increase">
-                        <i class="fas fa-plus"></i>
-                    </button>
-                </div>
-                <div class="control-group">
-                    <button class="control-btn" id="theme-toggle">
-                        <i class="fas fa-moon"></i>
-                    </button>
-                    <button class="control-btn" id="fullscreen">
-                        <i class="fas fa-expand"></i>
-                    </button>
-                </div>
+    <!-- Modal untuk tambah/edit siswa -->
+    <div id="studentModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Tambah Siswa Baru</h2>
+                <span class="close" onclick="closeModal()">&times;</span>
             </div>
-
-            <!-- Book Content -->
-            <div class="book-content" id="book-content">
-                <div class="chapter">
-                    <h2>Bab 1: Memulai Perjalanan</h2>
-                    
-                    <p>Di era digital yang semakin maju, teknologi telah menjadi bagian tak terpisahkan dari kehidupan kita sehari-hari. Setiap pagi, kita bangun dengan smartphone di tangan, memeriksa notifikasi, dan memulai hari dengan informasi yang mengalir deras dari berbagai sumber.</p>
-                    
-                    <p>Namun, di balik kemudahan yang ditawarkan teknologi, tersembunyi tantangan yang tidak kalah besarnya. Bagaimana kita bisa memanfaatkan teknologi dengan bijak? Bagaimana kita bisa tetap produktif di tengah distraksi yang tak terhitung jumlahnya?</p>
-                    
-                    <p>Buku ini akan membawa Anda dalam perjalanan mendalam untuk memahami dunia digital, dari dasar-dasar teknologi hingga strategi praktis untuk mengoptimalkan penggunaan perangkat digital dalam kehidupan sehari-hari.</p>
+            <form id="studentForm">
+                <div class="form-group">
+                    <label for="studentName">Nama Siswa:</label>
+                    <input type="text" id="studentName" required>
                 </div>
-
-                <div class="chapter">
-                    <h2>Bab 2: Memahami Dasar Teknologi</h2>
-                    
-                    <p>Sebelum kita melangkah lebih jauh, penting untuk memahami fondasi teknologi yang membentuk dunia digital saat ini. Teknologi bukan hanya tentang gadget dan aplikasi, tetapi juga tentang cara berpikir dan memecahkan masalah.</p>
-                    
-                    <p>Konsep komputasi, jaringan, dan data telah berkembang pesat dalam beberapa dekade terakhir. Dari komputer raksasa yang memenuhi ruangan hingga smartphone yang muat di saku, evolusi teknologi telah mengubah cara kita hidup, bekerja, dan berkomunikasi.</p>
-                    
-                    <p>Dalam bab ini, kita akan menjelajahi sejarah teknologi, memahami prinsip-prinsip dasar yang mendasari perkembangan teknologi modern, dan melihat bagaimana teknologi telah mempengaruhi berbagai aspek kehidupan manusia.</p>
+                <div class="form-group">
+                    <label for="examScore">Nilai Ujian (0-100):</label>
+                    <input type="number" id="examScore" min="0" max="100" required>
                 </div>
-
-                <div class="chapter">
-                    <h2>Bab 3: Strategi Produktivitas Digital</h2>
-                    
-                    <p>Produktivitas di era digital membutuhkan pendekatan yang berbeda dari era sebelumnya. Dengan begitu banyak alat dan platform yang tersedia, mudah untuk terjebak dalam "paralysis by analysis" - terlalu banyak pilihan yang justru membuat kita tidak produktif.</p>
-                    
-                    <p>Kunci produktivitas digital terletak pada kemampuan untuk fokus, mengelola waktu dengan efektif, dan memanfaatkan teknologi sebagai alat, bukan sebagai pengalih perhatian. Kita perlu belajar untuk "mengendalikan teknologi" alih-alih "dikendalikan teknologi".</p>
-                    
-                    <p>Dalam bab ini, Anda akan menemukan strategi praktis untuk meningkatkan produktivitas, mengelola distraksi digital, dan menciptakan sistem kerja yang efisien dengan memanfaatkan teknologi yang tepat.</p>
+                <div class="form-group">
+                    <label for="assignmentScore">Nilai Tugas Harian (0-100):</label>
+                    <input type="number" id="assignmentScore" min="0" max="100" required>
                 </div>
-            </div>
-
-            <!-- Navigation -->
-            <div class="book-navigation">
-                <button class="nav-btn" id="prev-page">
-                    <i class="fas fa-chevron-left"></i>
-                    Sebelumnya
-                </button>
-                <div class="page-info">
-                    <span>Halaman 1 dari 3</span>
+                <div class="form-group">
+                    <label for="attendance">Kehadiran (%):</label>
+                    <input type="number" id="attendance" min="0" max="100" required>
                 </div>
-                <button class="nav-btn" id="next-page">
-                    Selanjutnya
-                    <i class="fas fa-chevron-right"></i>
-                </button>
-            </div>
-        </main>
-
-        <!-- Footer -->
-        <footer class="ebook-footer">
-            <div class="footer-content">
-                <p>&copy; 2024 Digital Library. Dibuat dengan ❤️ untuk pembaca Indonesia.</p>
-                <div class="footer-links">
-                    <a href="#">Kebijakan Privasi</a>
-                    <a href="#">Syarat & Ketentuan</a>
-                    <a href="#">Kontak</a>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Simpan</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Batal</button>
                 </div>
-            </div>
-        </footer>
+            </form>
+        </div>
     </div>
 
     <script src="script.js"></script>

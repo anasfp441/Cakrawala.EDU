@@ -1,403 +1,347 @@
-// Ebook Online JavaScript
+// Data siswa (akan disimpan di localStorage)
+let students = [];
+let editingIndex = -1;
+
+// Inisialisasi aplikasi
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialize variables
-    let currentPage = 0;
-    let fontSize = 16;
-    let isDarkTheme = false;
+    loadStudents();
+    updateSummary();
+    updateGradeDistribution();
     
-    // DOM elements
-    const bookContent = document.getElementById('book-content');
-    const chapters = document.querySelectorAll('.chapter');
-    const fontDecreaseBtn = document.getElementById('font-decrease');
-    const fontIncreaseBtn = document.getElementById('font-increase');
-    const fontSizeDisplay = document.querySelector('.font-size-display');
-    const themeToggleBtn = document.getElementById('theme-toggle');
-    const fullscreenBtn = document.getElementById('fullscreen');
-    const prevPageBtn = document.getElementById('prev-page');
-    const nextPageBtn = document.getElementById('next-page');
-    const pageInfo = document.querySelector('.page-info');
+    // Event listener untuk form
+    document.getElementById('studentForm').addEventListener('submit', handleFormSubmit);
+});
+
+// Fungsi untuk menghitung nilai akhir berdasarkan bobot
+function calculateFinalGrade(examScore, assignmentScore, attendance) {
+    // Bobot: Ujian 60%, Tugas 40%, Bonus Kehadiran 10%
+    const examWeight = 0.6;
+    const assignmentWeight = 0.4;
+    const attendanceBonus = 0.1;
     
-    // Initialize the page
-    init();
+    // Nilai akhir = (Ujian × 0.6) + (Tugas × 0.4) + (Kehadiran × 0.1)
+    let finalGrade = (examScore * examWeight) + (assignmentScore * assignmentWeight);
     
-    function init() {
-        // Load saved preferences
-        loadPreferences();
-        
-        // Set initial state
-        updatePageDisplay();
-        updateFontSize();
-        updateTheme();
-        
-        // Add event listeners
-        addEventListeners();
-        
-        // Show first page
-        showPage(0);
+    // Tambah bonus kehadiran jika kehadiran >= 80%
+    if (attendance >= 80) {
+        finalGrade += (attendance * attendanceBonus);
     }
     
-    function addEventListeners() {
-        // Font size controls
-        fontDecreaseBtn.addEventListener('click', decreaseFontSize);
-        fontIncreaseBtn.addEventListener('click', increaseFontSize);
-        
-        // Theme toggle
-        themeToggleBtn.addEventListener('click', toggleTheme);
-        
-        // Fullscreen
-        fullscreenBtn.addEventListener('click', toggleFullscreen);
-        
-        // Navigation
-        prevPageBtn.addEventListener('click', previousPage);
-        nextPageBtn.addEventListener('click', nextPage);
-        
-        // Keyboard shortcuts
-        document.addEventListener('keydown', handleKeyboard);
-        
-        // Save preferences on change
-        window.addEventListener('beforeunload', savePreferences);
+    // Pastikan nilai tidak melebihi 100
+    return Math.min(finalGrade, 100);
+}
+
+// Fungsi untuk menentukan grade berdasarkan nilai
+function getGrade(finalGrade) {
+    if (finalGrade >= 90) return 'A';
+    if (finalGrade >= 80) return 'B';
+    if (finalGrade >= 70) return 'C';
+    if (finalGrade >= 60) return 'D';
+    return 'E';
+}
+
+// Fungsi untuk menentukan status kelulusan
+function getStatus(finalGrade) {
+    return finalGrade >= 60 ? 'Lulus' : 'Tidak Lulus';
+}
+
+// Fungsi untuk mendapatkan class CSS grade
+function getGradeClass(grade) {
+    return `grade-${grade.toLowerCase()}`;
+}
+
+// Fungsi untuk mendapatkan class CSS status
+function getStatusClass(status) {
+    return status === 'Lulus' ? 'status-lulus' : 'status-tidak-lulus';
+}
+
+// Fungsi untuk menambah siswa baru
+function addStudent() {
+    editingIndex = -1;
+    document.getElementById('modalTitle').textContent = 'Tambah Siswa Baru';
+    document.getElementById('studentForm').reset();
+    document.getElementById('studentModal').style.display = 'block';
+}
+
+// Fungsi untuk edit siswa
+function editStudent(index) {
+    editingIndex = index;
+    const student = students[index];
+    
+    document.getElementById('modalTitle').textContent = 'Edit Data Siswa';
+    document.getElementById('studentName').value = student.name;
+    document.getElementById('examScore').value = student.examScore;
+    document.getElementById('assignmentScore').value = student.assignmentScore;
+    document.getElementById('attendance').value = student.attendance;
+    
+    document.getElementById('studentModal').style.display = 'block';
+}
+
+// Fungsi untuk hapus siswa
+function deleteStudent(index) {
+    if (confirm('Apakah Anda yakin ingin menghapus data siswa ini?')) {
+        students.splice(index, 1);
+        saveStudents();
+        updateSummary();
+        updateGradeDistribution();
+        renderStudentTable();
+    }
+}
+
+// Fungsi untuk menutup modal
+function closeModal() {
+    document.getElementById('studentModal').style.display = 'none';
+    editingIndex = -1;
+}
+
+// Fungsi untuk handle form submission
+function handleFormSubmit(e) {
+    e.preventDefault();
+    
+    const name = document.getElementById('studentName').value.trim();
+    const examScore = parseFloat(document.getElementById('examScore').value);
+    const assignmentScore = parseFloat(document.getElementById('assignmentScore').value);
+    const attendance = parseFloat(document.getElementById('attendance').value);
+    
+    // Validasi input
+    if (!name) {
+        alert('Nama siswa harus diisi!');
+        return;
     }
     
-    // Font size controls
-    function decreaseFontSize() {
-        if (fontSize > 12) {
-            fontSize -= 2;
-            updateFontSize();
-        }
+    if (examScore < 0 || examScore > 100 || isNaN(examScore)) {
+        alert('Nilai ujian harus antara 0-100!');
+        return;
     }
     
-    function increaseFontSize() {
-        if (fontSize < 24) {
-            fontSize += 2;
-            updateFontSize();
-        }
+    if (assignmentScore < 0 || assignmentScore > 100 || isNaN(assignmentScore)) {
+        alert('Nilai tugas harus antara 0-100!');
+        return;
     }
     
-    function updateFontSize() {
-        bookContent.style.fontSize = fontSize + 'px';
-        fontSizeDisplay.textContent = fontSize + 'px';
-        
-        // Update chapter headings
-        const chapterHeadings = document.querySelectorAll('.chapter h2');
-        chapterHeadings.forEach(heading => {
-            heading.style.fontSize = (fontSize * 1.2) + 'px';
-        });
+    if (attendance < 0 || attendance > 100 || isNaN(attendance)) {
+        alert('Kehadiran harus antara 0-100%!');
+        return;
     }
     
-    // Theme toggle
-    function toggleTheme() {
-        isDarkTheme = !isDarkTheme;
-        updateTheme();
-        
-        // Update icon
-        const icon = themeToggleBtn.querySelector('i');
-        if (isDarkTheme) {
-            icon.className = 'fas fa-sun';
-        } else {
-            icon.className = 'fas fa-moon';
-        }
+    const finalGrade = calculateFinalGrade(examScore, assignmentScore, attendance);
+    const grade = getGrade(finalGrade);
+    const status = getStatus(finalGrade);
+    
+    const studentData = {
+        name,
+        examScore,
+        assignmentScore,
+        attendance,
+        finalGrade: Math.round(finalGrade * 100) / 100,
+        grade,
+        status
+    };
+    
+    if (editingIndex === -1) {
+        // Tambah siswa baru
+        students.push(studentData);
+    } else {
+        // Edit siswa yang ada
+        students[editingIndex] = studentData;
     }
     
-    function updateTheme() {
-        if (isDarkTheme) {
-            document.body.classList.add('dark-theme');
-        } else {
-            document.body.classList.remove('dark-theme');
-        }
-    }
+    saveStudents();
+    updateSummary();
+    updateGradeDistribution();
+    renderStudentTable();
+    closeModal();
+}
+
+// Fungsi untuk render tabel siswa
+function renderStudentTable() {
+    const tbody = document.getElementById('studentTableBody');
+    tbody.innerHTML = '';
     
-    // Fullscreen
-    function toggleFullscreen() {
-        if (!document.fullscreenElement) {
-            document.documentElement.requestFullscreen().catch(err => {
-                console.log('Error attempting to enable fullscreen:', err);
-            });
-        } else {
-            document.exitFullscreen();
-        }
-    }
-    
-    // Page navigation
-    function showPage(pageIndex) {
-        if (pageIndex < 0 || pageIndex >= chapters.length) return;
-        
-        // Hide all chapters
-        chapters.forEach(chapter => {
-            chapter.style.display = 'none';
-        });
-        
-        // Show current chapter
-        chapters[pageIndex].style.display = 'block';
-        currentPage = pageIndex;
-        
-        // Update navigation
-        updatePageDisplay();
-        updateNavigationButtons();
-        
-        // Scroll to top
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-    
-    function previousPage() {
-        if (currentPage > 0) {
-            showPage(currentPage - 1);
-        }
-    }
-    
-    function nextPage() {
-        if (currentPage < chapters.length - 1) {
-            showPage(currentPage + 1);
-        }
-    }
-    
-    function updatePageDisplay() {
-        pageInfo.innerHTML = `<span>Halaman ${currentPage + 1} dari ${chapters.length}</span>`;
-    }
-    
-    function updateNavigationButtons() {
-        prevPageBtn.disabled = currentPage === 0;
-        nextPageBtn.disabled = currentPage === chapters.length - 1;
-    }
-    
-    // Keyboard shortcuts
-    function handleKeyboard(event) {
-        switch(event.key) {
-            case 'ArrowLeft':
-                event.preventDefault();
-                previousPage();
-                break;
-            case 'ArrowRight':
-                event.preventDefault();
-                nextPage();
-                break;
-            case 'f':
-                if (event.ctrlKey || event.metaKey) {
-                    event.preventDefault();
-                    toggleFullscreen();
-                }
-                break;
-            case 't':
-                if (event.ctrlKey || event.metaKey) {
-                    event.preventDefault();
-                    toggleTheme();
-                }
-                break;
-            case '+':
-            case '=':
-                if (event.ctrlKey || event.metaKey) {
-                    event.preventDefault();
-                    increaseFontSize();
-                }
-                break;
-            case '-':
-                if (event.ctrlKey || event.metaKey) {
-                    event.preventDefault();
-                    decreaseFontSize();
-                }
-                break;
-        }
-    }
-    
-    // Preferences management
-    function savePreferences() {
-        const preferences = {
-            fontSize: fontSize,
-            isDarkTheme: isDarkTheme,
-            currentPage: currentPage
-        };
-        localStorage.setItem('ebook-preferences', JSON.stringify(preferences));
-    }
-    
-    function loadPreferences() {
-        const saved = localStorage.getItem('ebook-preferences');
-        if (saved) {
-            try {
-                const preferences = JSON.parse(saved);
-                fontSize = preferences.fontSize || 16;
-                isDarkTheme = preferences.isDarkTheme || false;
-                currentPage = preferences.currentPage || 0;
-            } catch (e) {
-                console.log('Error loading preferences:', e);
-            }
-        }
-    }
-    
-    // Auto-save preferences
-    setInterval(savePreferences, 5000);
-    
-    // Reading progress tracking
-    function trackReadingProgress() {
-        const scrollTop = window.pageYOffset;
-        const docHeight = document.body.scrollHeight - window.innerHeight;
-        const scrollPercent = (scrollTop / docHeight) * 100;
-        
-        // Save reading progress
-        localStorage.setItem('reading-progress', scrollPercent);
-    }
-    
-    // Track scroll for reading progress
-    window.addEventListener('scroll', trackReadingProgress);
-    
-    // Bookmark functionality
-    function addBookmark() {
-        const bookmark = {
-            page: currentPage,
-            timestamp: new Date().toISOString(),
-            scrollPosition: window.pageYOffset
-        };
-        
-        let bookmarks = JSON.parse(localStorage.getItem('bookmarks') || '[]');
-        bookmarks.push(bookmark);
-        localStorage.setItem('bookmarks', JSON.stringify(bookmarks));
-        
-        // Show success message
-        showNotification('Bookmark berhasil ditambahkan!');
-    }
-    
-    // Share functionality
-    function shareBook() {
-        if (navigator.share) {
-            navigator.share({
-                title: 'Petualangan di Dunia Digital',
-                text: 'Baca ebook menarik tentang teknologi dan produktivitas digital',
-                url: window.location.href
-            });
-        } else {
-            // Fallback: copy to clipboard
-            navigator.clipboard.writeText(window.location.href).then(() => {
-                showNotification('Link berhasil disalin ke clipboard!');
-            });
-        }
-    }
-    
-    // Notification system
-    function showNotification(message) {
-        const notification = document.createElement('div');
-        notification.className = 'notification';
-        notification.textContent = message;
-        
-        // Style the notification
-        notification.style.cssText = `
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: #10b981;
-            color: white;
-            padding: 1rem 1.5rem;
-            border-radius: 0.5rem;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-            z-index: 1000;
-            transform: translateX(100%);
-            transition: transform 0.3s ease;
+    students.forEach((student, index) => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${index + 1}</td>
+            <td>${student.name}</td>
+            <td>${student.examScore}</td>
+            <td>${student.assignmentScore}</td>
+            <td>${student.attendance}%</td>
+            <td><strong>${student.finalGrade}</strong></td>
+            <td><span class="grade-badge ${getGradeClass(student.grade)}">${student.grade}</span></td>
+            <td><span class="status-badge ${getStatusClass(student.status)}">${student.status}</span></td>
+            <td>
+                <div class="action-buttons">
+                    <button class="btn-edit" onclick="editStudent(${index})">
+                        <i class="fas fa-edit"></i> Edit
+                    </button>
+                    <button class="btn-delete" onclick="deleteStudent(${index})">
+                        <i class="fas fa-trash"></i> Hapus
+                    </button>
+                </div>
+            </td>
         `;
-        
-        document.body.appendChild(notification);
-        
-        // Animate in
-        setTimeout(() => {
-            notification.style.transform = 'translateX(0)';
-        }, 100);
-        
-        // Remove after 3 seconds
-        setTimeout(() => {
-            notification.style.transform = 'translateX(100%)';
-            setTimeout(() => {
-                document.body.removeChild(notification);
-            }, 300);
-        }, 3000);
+        tbody.appendChild(row);
+    });
+}
+
+// Fungsi untuk update summary cards
+function updateSummary() {
+    const totalStudents = students.length;
+    document.getElementById('totalStudents').textContent = totalStudents;
+    
+    if (totalStudents === 0) {
+        document.getElementById('averageGrade').textContent = '0.00';
+        document.getElementById('highestGrade').textContent = '0.00';
+        document.getElementById('lowestGrade').textContent = '0.00';
+        return;
     }
     
-    // Add bookmark and share functionality to buttons
-    const bookmarkBtn = document.querySelector('.btn-primary');
-    const shareBtn = document.querySelector('.btn-secondary');
+    const grades = students.map(s => s.finalGrade);
+    const average = grades.reduce((sum, grade) => sum + grade, 0) / totalStudents;
+    const highest = Math.max(...grades);
+    const lowest = Math.min(...grades);
     
-    if (bookmarkBtn) {
-        bookmarkBtn.addEventListener('click', addBookmark);
-    }
-    
-    if (shareBtn) {
-        shareBtn.addEventListener('click', shareBook);
-    }
-    
-    // Reading time estimation
-    function estimateReadingTime() {
-        const text = bookContent.textContent;
-        const words = text.trim().split(/\s+/).length;
-        const wordsPerMinute = 200; // Average reading speed
-        const minutes = Math.ceil(words / wordsPerMinute);
-        
-        // Update the reading time display
-        const readingTimeElement = document.querySelector('.meta-item:first-child');
-        if (readingTimeElement) {
-            readingTimeElement.innerHTML = `<i class="fas fa-clock"></i> ${minutes} menit baca`;
-        }
-    }
-    
-    // Calculate reading time after content loads
-    setTimeout(estimateReadingTime, 1000);
-    
-    // Smooth page transitions
-    function smoothPageTransition(direction) {
-        const currentChapter = chapters[currentPage];
-        const nextChapter = direction === 'next' ? chapters[currentPage + 1] : chapters[currentPage - 1];
-        
-        if (currentChapter && nextChapter) {
-            currentChapter.style.opacity = '0';
-            currentChapter.style.transform = `translateX(${direction === 'next' ? '-100%' : '100%'})`;
-            
-            setTimeout(() => {
-                showPage(direction === 'next' ? currentPage + 1 : currentPage - 1);
-                nextChapter.style.opacity = '1';
-                nextChapter.style.transform = 'translateX(0)';
-            }, 300);
-        }
-    }
-    
-    // Enhanced navigation with smooth transitions
-    const originalNextPage = nextPage;
-    const originalPrevPage = previousPage;
-    
-    nextPage = function() {
-        if (currentPage < chapters.length - 1) {
-            smoothPageTransition('next');
-        }
+    document.getElementById('averageGrade').textContent = average.toFixed(2);
+    document.getElementById('highestGrade').textContent = highest.toFixed(2);
+    document.getElementById('lowestGrade').textContent = lowest.toFixed(2);
+}
+
+// Fungsi untuk update distribusi grade
+function updateGradeDistribution() {
+    const gradeCounts = {
+        A: 0, B: 0, C: 0, D: 0, E: 0
     };
     
-    previousPage = function() {
-        if (currentPage > 0) {
-            smoothPageTransition('prev');
-        }
-    };
-    
-    // Add CSS for smooth transitions
-    const style = document.createElement('style');
-    style.textContent = `
-        .chapter {
-            transition: opacity 0.3s ease, transform 0.3s ease;
-        }
-        
-        .notification {
-            font-family: 'Inter', sans-serif;
-            font-weight: 500;
-        }
-    `;
-    document.head.appendChild(style);
-    
-    // Initialize smooth transitions
-    chapters.forEach(chapter => {
-        chapter.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+    students.forEach(student => {
+        gradeCounts[student.grade]++;
     });
     
-    // Console welcome message
-    console.log(`
-    📚 Selamat datang di Ebook Online!
+    const totalStudents = students.length;
     
-    Keyboard shortcuts:
-    - ← → : Navigasi halaman
-    - Ctrl/Cmd + F : Fullscreen
-    - Ctrl/Cmd + T : Toggle tema
-    - Ctrl/Cmd + +/- : Ubah ukuran font
+    // Update count dan bar width
+    Object.keys(gradeCounts).forEach(grade => {
+        const count = gradeCounts[grade];
+        const percentage = totalStudents > 0 ? (count / totalStudents) * 100 : 0;
+        
+        document.getElementById(`count${grade}`).textContent = count;
+        document.getElementById(`grade${grade}`).style.width = `${percentage}%`;
+    });
+}
+
+// Fungsi untuk save data ke localStorage
+function saveStudents() {
+    localStorage.setItem('students', JSON.stringify(students));
+}
+
+// Fungsi untuk load data dari localStorage
+function loadStudents() {
+    const saved = localStorage.getItem('students');
+    if (saved) {
+        students = JSON.parse(saved);
+        renderStudentTable();
+    }
+}
+
+// Fungsi untuk export ke Excel (CSV)
+function exportToExcel() {
+    if (students.length === 0) {
+        alert('Tidak ada data siswa untuk diexport!');
+        return;
+    }
     
-    Happy reading! 🎉
-    `);
+    // Header CSV
+    let csvContent = 'data:text/csv;charset=utf-8,';
+    csvContent += 'No,Nama Siswa,Nilai Ujian,Nilai Tugas,Kehadiran (%),Nilai Akhir,Grade,Status\n';
+    
+    // Data siswa
+    students.forEach((student, index) => {
+        const row = [
+            index + 1,
+            student.name,
+            student.examScore,
+            student.assignmentScore,
+            student.attendance,
+            student.finalGrade,
+            student.grade,
+            student.status
+        ].join(',');
+        csvContent += row + '\n';
+    });
+    
+    // Download file
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute('download', `rekap_nilai_siswa_${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+// Event listener untuk menutup modal ketika klik di luar modal
+window.onclick = function(event) {
+    const modal = document.getElementById('studentModal');
+    if (event.target === modal) {
+        closeModal();
+    }
+}
+
+// Tambah beberapa data contoh saat pertama kali load
+document.addEventListener('DOMContentLoaded', function() {
+    if (students.length === 0) {
+        // Data contoh
+        const sampleStudents = [
+            {
+                name: 'Ahmad Fadillah',
+                examScore: 85,
+                assignmentScore: 90,
+                attendance: 95,
+                finalGrade: 89.5,
+                grade: 'B',
+                status: 'Lulus'
+            },
+            {
+                name: 'Siti Nurhaliza',
+                examScore: 92,
+                assignmentScore: 88,
+                attendance: 100,
+                finalGrade: 94.8,
+                grade: 'A',
+                status: 'Lulus'
+            },
+            {
+                name: 'Budi Santoso',
+                examScore: 78,
+                assignmentScore: 82,
+                attendance: 85,
+                finalGrade: 79.8,
+                grade: 'C',
+                status: 'Lulus'
+            },
+            {
+                name: 'Dewi Sartika',
+                examScore: 65,
+                assignmentScore: 70,
+                attendance: 75,
+                finalGrade: 67.5,
+                grade: 'D',
+                status: 'Lulus'
+            },
+            {
+                name: 'Rudi Hermawan',
+                examScore: 55,
+                assignmentScore: 60,
+                attendance: 70,
+                finalGrade: 57.0,
+                grade: 'E',
+                status: 'Tidak Lulus'
+            }
+        ];
+        
+        students = sampleStudents;
+        saveStudents();
+        renderStudentTable();
+        updateSummary();
+        updateGradeDistribution();
+    }
 });

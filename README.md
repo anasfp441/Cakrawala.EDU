@@ -1,180 +1,187 @@
-# 📚 Ebook Online - Halaman Baca Digital
+# Sistem Rekap Nilai Siswa
 
-Sebuah halaman web modern dan responsif untuk membaca ebook online dengan fitur-fitur yang memudahkan pengalaman membaca.
+Aplikasi web untuk mengelola dan menganalisis nilai siswa dengan sistem penilaian berbobot yang komprehensif.
 
-## ✨ Fitur Utama
+## 🎯 Fitur Utama
 
-### 🎨 Interface & Design
-- **Design Modern**: Tampilan yang elegan dan mudah dibaca
-- **Responsif**: Optimal di semua ukuran layar (desktop, tablet, mobile)
-- **Dark/Light Theme**: Toggle tema gelap dan terang
-- **Animasi Smooth**: Transisi dan animasi yang halus
+### Sistem Penilaian
+- **Nilai Ujian**: Bobot 60% dari nilai akhir
+- **Nilai Tugas Harian**: Bobot 40% dari nilai akhir  
+- **Bonus Kehadiran**: Tambahan 10% jika kehadiran ≥80%
+- **Nilai Maksimal**: 100 (dengan bonus kehadiran)
 
-### 📖 Kontrol Membaca
-- **Ukuran Font**: Kontrol ukuran teks (12px - 24px)
-- **Navigasi Halaman**: Tombol navigasi antar bab
-- **Fullscreen Mode**: Mode layar penuh untuk fokus membaca
-- **Progress Tracking**: Pelacakan kemajuan membaca
+### Fungsi Aplikasi
+- ✅ Tambah, edit, dan hapus data siswa
+- 📊 Dashboard dengan ringkasan statistik
+- 📈 Visualisasi distribusi nilai (A, B, C, D, E)
+- 💾 Penyimpanan data lokal (localStorage)
+- 📥 Export data ke format CSV/Excel
+- 📱 Responsif untuk desktop dan mobile
 
-### 🔧 Fitur Interaktif
-- **Bookmark**: Simpan halaman favorit
-- **Share**: Bagikan ebook ke platform lain
-- **Keyboard Shortcuts**: Navigasi cepat dengan keyboard
-- **Auto-save**: Penyimpanan otomatis preferensi pengguna
+### Kriteria Penilaian
+- **Grade A**: 90-100 (Sangat Baik)
+- **Grade B**: 80-89 (Baik)
+- **Grade C**: 70-79 (Cukup)
+- **Grade D**: 60-69 (Kurang)
+- **Grade E**: <60 (Sangat Kurang)
 
-### 📱 Responsivitas
-- **Mobile First**: Didesain untuk perangkat mobile
-- **Touch Friendly**: Interface yang mudah digunakan dengan sentuhan
-- **Cross Browser**: Kompatibel dengan semua browser modern
+### Status Kelulusan
+- **Lulus**: Nilai akhir ≥60
+- **Tidak Lulus**: Nilai akhir <60
 
-## 🚀 Cara Menggunakan
+## 🚀 Cara Penggunaan
 
-### 1. Buka Halaman
-```bash
-# Buka file index.html di browser
-open index.html
+### 1. Menambah Siswa Baru
+1. Klik tombol "Tambah Siswa"
+2. Isi form dengan data lengkap:
+   - Nama siswa
+   - Nilai ujian (0-100)
+   - Nilai tugas harian (0-100)
+   - Persentase kehadiran (0-100%)
+3. Klik "Simpan"
+
+### 2. Mengedit Data Siswa
+1. Klik tombol "Edit" pada baris siswa yang ingin diedit
+2. Ubah data yang diperlukan
+3. Klik "Simpan"
+
+### 3. Menghapus Data Siswa
+1. Klik tombol "Hapus" pada baris siswa yang ingin dihapus
+2. Konfirmasi penghapusan
+
+### 4. Export Data
+1. Klik tombol "Export Excel"
+2. File CSV akan otomatis terdownload
+3. Buka file dengan Excel atau aplikasi spreadsheet lainnya
+
+## 📱 Tampilan Aplikasi
+
+### Dashboard
+- **Total Siswa**: Jumlah keseluruhan siswa
+- **Rata-rata Nilai**: Nilai rata-rata kelas
+- **Nilai Tertinggi**: Nilai siswa terbaik
+- **Nilai Terendah**: Nilai siswa terendah
+
+### Tabel Nilai
+- Nomor urut
+- Nama siswa
+- Nilai ujian dan tugas
+- Persentase kehadiran
+- Nilai akhir (otomatis terhitung)
+- Grade dan status kelulusan
+- Tombol aksi (edit/hapus)
+
+### Distribusi Nilai
+- Grafik batang visual untuk setiap grade
+- Jumlah siswa per grade
+- Persentase distribusi
+
+## 🛠️ Teknologi yang Digunakan
+
+- **HTML5**: Struktur halaman
+- **CSS3**: Styling dan animasi
+- **JavaScript (ES6+)**: Logika aplikasi
+- **Font Awesome**: Ikon
+- **Google Fonts**: Tipografi
+- **LocalStorage**: Penyimpanan data lokal
+
+## 📁 Struktur File
+
+```
+├── index.html          # Halaman utama
+├── style.css           # Styling dan layout
+├── script.js           # Logika aplikasi
+└── README.md           # Dokumentasi
 ```
 
-### 2. Navigasi
-- **Tombol Sebelumnya/Selanjutnya**: Navigasi antar bab
-- **Arrow Keys**: Gunakan ← → untuk navigasi
-- **Scroll**: Scroll manual untuk membaca konten
+## 🔧 Instalasi dan Penggunaan
 
-### 3. Kontrol Membaca
-- **Font Size**: Klik +/- untuk mengubah ukuran teks
-- **Theme**: Klik ikon bulan/matahari untuk ganti tema
-- **Fullscreen**: Klik ikon expand untuk mode layar penuh
+### Cara 1: Langsung Buka File
+1. Download semua file ke folder yang sama
+2. Buka file `index.html` di browser
+3. Aplikasi siap digunakan
 
-### 4. Keyboard Shortcuts
-| Shortcut | Fungsi |
-|----------|---------|
-| `←` `→` | Navigasi halaman |
-| `Ctrl/Cmd + F` | Toggle fullscreen |
-| `Ctrl/Cmd + T` | Toggle tema |
-| `Ctrl/Cmd + +/-` | Ubah ukuran font |
+### Cara 2: Server Lokal
+1. Install Node.js
+2. Buka terminal di folder project
+3. Jalankan: `npx http-server`
+4. Buka browser ke `http://localhost:8080`
 
-## 🛠️ Struktur File
+### Cara 3: Live Server (VS Code)
+1. Install extension "Live Server"
+2. Klik kanan pada `index.html`
+3. Pilih "Open with Live Server"
+
+## 💾 Penyimpanan Data
+
+- Data disimpan di browser menggunakan localStorage
+- Data tidak akan hilang saat refresh halaman
+- Data tersimpan per browser/device
+- Untuk backup, gunakan fitur export
+
+## 📊 Rumus Perhitungan Nilai
 
 ```
-ebook-online/
-├── index.html          # File HTML utama
-├── styles.css          # Styling dan layout
-├── script.js           # JavaScript dan interaktivitas
-└── README.md           # Dokumentasi ini
+Nilai Akhir = (Nilai Ujian × 0.6) + (Nilai Tugas × 0.4) + Bonus Kehadiran
+
+Dimana:
+- Bonus Kehadiran = Kehadiran × 0.1 (jika kehadiran ≥80%)
+- Nilai maksimal = 100
 ```
 
-## 🎯 Fitur Teknis
+### Contoh Perhitungan
+**Siswa A:**
+- Nilai Ujian: 85
+- Nilai Tugas: 90
+- Kehadiran: 95%
 
-### HTML5 Semantic
-- Struktur HTML yang semantik dan accessible
-- Meta tags untuk SEO dan mobile optimization
-- Font Awesome icons untuk UI yang menarik
-
-### CSS3 Modern
-- CSS Grid dan Flexbox untuk layout
-- CSS Variables untuk konsistensi tema
-- Media queries untuk responsivitas
-- Smooth transitions dan animations
-
-### JavaScript ES6+
-- Event-driven architecture
-- Local storage untuk preferensi
-- Modern async/await patterns
-- Progressive enhancement
-
-## 🌟 Fitur Tambahan
-
-### 📊 Analytics & Tracking
-- Reading progress tracking
-- Time spent reading
-- User preferences storage
-
-### 🔒 Privacy & Security
-- Local storage only (no external tracking)
-- User data tetap di perangkat
-- No cookies atau tracking scripts
-
-### 📱 PWA Ready
-- Responsive design
-- Offline capability ready
-- Installable as web app
-
-## 🎨 Customization
-
-### Mengubah Konten
-Edit file `index.html` untuk mengubah:
-- Judul buku
-- Nama penulis
-- Konten bab
-- Cover image
-
-### Mengubah Styling
-Edit file `styles.css` untuk mengubah:
-- Warna tema
-- Font family
-- Layout spacing
-- Animasi
-
-### Mengubah Functionality
-Edit file `script.js` untuk mengubah:
-- Keyboard shortcuts
-- Default preferences
-- Animation timing
-- Feature toggles
-
-## 🚀 Deployment
-
-### Local Development
-```bash
-# Buka di browser lokal
-python -m http.server 8000
-# atau
-npx serve .
+**Perhitungan:**
+```
+Nilai Akhir = (85 × 0.6) + (90 × 0.4) + (95 × 0.1)
+            = 51 + 36 + 9.5
+            = 96.5
 ```
 
-### Web Hosting
-Upload semua file ke web hosting:
-- Netlify
-- Vercel
-- GitHub Pages
-- Traditional hosting
+## 🎨 Fitur UI/UX
 
-## 📱 Browser Support
+- **Design Modern**: Gradient background dan card design
+- **Responsif**: Optimal di desktop, tablet, dan mobile
+- **Animasi**: Hover effects dan transisi smooth
+- **Color Coding**: Grade dan status dengan warna yang berbeda
+- **Modal Form**: Form input yang user-friendly
+- **Real-time Update**: Data terupdate otomatis
 
-- ✅ Chrome 80+
-- ✅ Firefox 75+
-- ✅ Safari 13+
-- ✅ Edge 80+
-- ✅ Mobile browsers
+## 🔒 Keamanan dan Validasi
 
-## 🤝 Contributing
+- Validasi input (nilai 0-100)
+- Konfirmasi sebelum menghapus data
+- Sanitasi input untuk mencegah XSS
+- Error handling untuk input yang tidak valid
 
-1. Fork repository
-2. Buat feature branch
-3. Commit changes
-4. Push ke branch
-5. Buat Pull Request
+## 🚀 Pengembangan Selanjutnya
 
-## 📄 License
-
-MIT License - bebas digunakan untuk personal dan komersial.
-
-## 🙏 Credits
-
-- **Fonts**: Google Fonts (Inter, Noto Serif)
-- **Icons**: Font Awesome
-- **Design**: Modern web design principles
-- **Code**: Vanilla JavaScript, CSS3, HTML5
+Fitur yang bisa ditambahkan:
+- [ ] Database backend (MySQL/PostgreSQL)
+- [ ] Sistem login dan user management
+- [ ] Multiple kelas dan mata pelajaran
+- [ ] Grafik dan chart yang lebih advanced
+- [ ] Import data dari Excel/CSV
+- [ ] Backup dan restore data
+- [ ] Print laporan nilai
+- [ ] Notifikasi dan reminder
+- [ ] API untuk integrasi dengan sistem lain
 
 ## 📞 Support
 
 Jika ada pertanyaan atau masalah:
-- Buat issue di repository
-- Email: support@example.com
-- Dokumentasi lengkap: [docs.example.com](https://docs.example.com)
+1. Periksa console browser untuk error
+2. Pastikan semua file ada dalam folder yang sama
+3. Gunakan browser modern (Chrome, Firefox, Safari, Edge)
+
+## 📄 Lisensi
+
+Project ini dibuat untuk tujuan edukasi dan dapat digunakan secara bebas.
 
 ---
 
-**Happy Reading! 📚✨**
-
-Dibuat dengan ❤️ untuk pembaca Indonesia
+**Dibuat dengan ❤️ untuk dunia pendidikan Indonesia**
