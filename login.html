@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - CBT Sekolah</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .login-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+        
+        .login-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+        
+        .login-header {
+            margin-bottom: 30px;
+        }
+        
+        .login-header h1 {
+            color: #333;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        
+        .login-header p {
+            color: #666;
+            font-size: 16px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+            box-sizing: border-box;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .login-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+        
+        .login-btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .login-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .demo-credentials {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            text-align: left;
+        }
+        
+        .demo-credentials h4 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+        
+        .demo-credentials ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .demo-credentials li {
+            color: #666;
+            font-size: 12px;
+            margin-bottom: 5px;
+            padding: 5px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .demo-credentials li:last-child {
+            border-bottom: none;
+        }
+        
+        .error-message {
+            background: #fee;
+            color: #c33;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .success-message {
+            background: #efe;
+            color: #363;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .loading {
+            display: none;
+            margin-left: 10px;
+        }
+        
+        .spinner {
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #667eea;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .back-to-home {
+            margin-top: 20px;
+        }
+        
+        .back-to-home a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .back-to-home a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-card">
+            <div class="login-header">
+                <h1><i class="fas fa-graduation-cap"></i> CBT Sekolah</h1>
+                <p>Silakan login untuk melanjutkan</p>
+            </div>
+            
+            <div class="error-message" id="errorMessage"></div>
+            <div class="success-message" id="successMessage"></div>
+            
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" required placeholder="Masukkan username">
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" required placeholder="Masukkan password">
+                </div>
+                
+                <button type="submit" class="login-btn" id="loginBtn">
+                    <span id="loginText">Login</span>
+                    <span class="loading" id="loading">
+                        <span class="spinner"></span>
+                    </span>
+                </button>
+            </form>
+            
+            <div class="demo-credentials">
+                <h4><i class="fas fa-info-circle"></i> Demo Credentials:</h4>
+                <ul>
+                    <li><strong>Admin:</strong> admin / admin123</li>
+                    <li><strong>Guru:</strong> guru / guru123</li>
+                    <li><strong>Siswa:</strong> siswa / siswa123</li>
+                </ul>
+            </div>
+            
+            <div class="back-to-home">
+                <a href="index.html"><i class="fas fa-arrow-left"></i> Kembali ke Beranda</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const loginForm = document.getElementById('loginForm');
+            const errorMessage = document.getElementById('errorMessage');
+            const successMessage = document.getElementById('successMessage');
+            const loginBtn = document.getElementById('loginBtn');
+            const loginText = document.getElementById('loginText');
+            const loading = document.getElementById('loading');
+            
+            // Check if user is already logged in
+            checkSession();
+            
+            loginForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const username = document.getElementById('username').value.trim();
+                const password = document.getElementById('password').value;
+                
+                if (!username || !password) {
+                    showError('Username dan password harus diisi');
+                    return;
+                }
+                
+                // Show loading state
+                setLoading(true);
+                
+                // Call login API
+                login(username, password);
+            });
+            
+            function login(username, password) {
+                fetch('api/auth.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        action: 'login',
+                        username: username,
+                        password: password
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    setLoading(false);
+                    
+                    if (data.success) {
+                        showSuccess('Login berhasil! Mengalihkan...');
+                        
+                        // Store user data in localStorage
+                        localStorage.setItem('user', JSON.stringify(data.data.user));
+                        localStorage.setItem('session_id', data.data.session_id);
+                        
+                        // Redirect based on role
+                        setTimeout(() => {
+                            redirectBasedOnRole(data.data.user.role);
+                        }, 1500);
+                    } else {
+                        showError(data.message || 'Login gagal');
+                    }
+                })
+                .catch(error => {
+                    setLoading(false);
+                    console.error('Error:', error);
+                    showError('Terjadi kesalahan. Silakan coba lagi.');
+                });
+            }
+            
+            function checkSession() {
+                fetch('api/auth.php?action=check_session')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // User is already logged in, redirect
+                        redirectBasedOnRole(data.data.user.role);
+                    }
+                })
+                .catch(error => {
+                    // Session check failed, user needs to login
+                    console.log('Session check failed, user needs to login');
+                });
+            }
+            
+            function redirectBasedOnRole(role) {
+                switch (role) {
+                    case 'admin':
+                        window.location.href = 'admin/dashboard.html';
+                        break;
+                    case 'guru':
+                        window.location.href = 'guru/dashboard.html';
+                        break;
+                    case 'siswa':
+                        window.location.href = 'siswa/dashboard.html';
+                        break;
+                    default:
+                        window.location.href = 'index.html';
+                }
+            }
+            
+            function setLoading(isLoading) {
+                if (isLoading) {
+                    loginBtn.disabled = true;
+                    loginText.style.display = 'none';
+                    loading.style.display = 'inline-block';
+                } else {
+                    loginBtn.disabled = false;
+                    loginText.style.display = 'inline';
+                    loading.style.display = 'none';
+                }
+            }
+            
+            function showError(message) {
+                errorMessage.textContent = message;
+                errorMessage.style.display = 'block';
+                successMessage.style.display = 'none';
+                
+                setTimeout(() => {
+                    errorMessage.style.display = 'none';
+                }, 5000);
+            }
+            
+            function showSuccess(message) {
+                successMessage.textContent = message;
+                successMessage.style.display = 'block';
+                errorMessage.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
