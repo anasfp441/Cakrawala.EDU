@@ -1,0 +1,285 @@
+global:
+  resolve_timeout: 5m
+  smtp_smarthost: 'mail:587'
+  smtp_from: 'alertmanager@cbt-sekolah.local'
+  smtp_auth_username: 'alerts@cbt-sekolah.local'
+  smtp_auth_password: 'cbt_alert_password_2024'
+  smtp_require_tls: false
+
+# Route configuration
+route:
+  group_by: ['alertname', 'service', 'severity']
+  group_wait: 30s
+  group_interval: 5m
+  repeat_interval: 4h
+  receiver: 'cbt-admin-team'
+  routes:
+    # Critical alerts - immediate notification
+    - match:
+        severity: critical
+      receiver: 'cbt-admin-team'
+      continue: true
+      group_wait: 0s
+      group_interval: 1m
+      repeat_interval: 1h
+      
+    # Database alerts - notify DBA team
+    - match:
+        service: database
+      receiver: 'cbt-dba-team'
+      group_wait: 1m
+      group_interval: 2m
+      repeat_interval: 2h
+      
+    # Security alerts - notify security team
+    - match:
+        service: security
+      receiver: 'cbt-security-team'
+      group_wait: 0s
+      group_interval: 1m
+      repeat_interval: 30m
+      
+    # Performance alerts - notify DevOps team
+    - match:
+        service: "cbt-web"
+      receiver: 'cbt-devops-team'
+      group_wait: 2m
+      group_interval: 5m
+      repeat_interval: 1h
+      
+    # Exam system alerts - notify education team
+    - match:
+        service: "exam-system"
+      receiver: 'cbt-education-team'
+      group_wait: 1m
+      group_interval: 2m
+      repeat_interval: 1h
+
+# Inhibition rules
+inhibit_rules:
+  # If database is down, inhibit other database-related alerts
+  - source_match:
+      severity: 'critical'
+      service: 'database'
+    target_match:
+      service: 'database'
+    equal: ['alertname']
+      
+  # If web server is down, inhibit performance alerts
+  - source_match:
+      severity: 'critical'
+      service: 'cbt-web'
+    target_match:
+      service: 'cbt-web'
+    equal: ['alertname']
+      
+  # If Redis is down, inhibit cache-related alerts
+  - source_match:
+      severity: 'critical'
+      service: 'redis'
+    target_match:
+      service: 'redis'
+    equal: ['alertname']
+
+# Receiver configurations
+receivers:
+  # CBT Admin Team - receives all alerts
+  - name: 'cbt-admin-team'
+    email_configs:
+      - to: 'admin@cbt-sekolah.local'
+        send_resolved: true
+        headers:
+          subject: 'CBT Sekolah Alert: {{ .GroupLabels.alertname }}'
+        html: |
+          <h2>CBT Sekolah Alert</h2>
+          <p><strong>Alert:</strong> {{ .GroupLabels.alertname }}</p>
+          <p><strong>Service:</strong> {{ .GroupLabels.service }}</p>
+          <p><strong>Severity:</strong> {{ .GroupLabels.severity }}</p>
+          <p><strong>Summary:</strong> {{ .CommonAnnotations.summary }}</p>
+          <p><strong>Description:</strong> {{ .CommonAnnotations.description }}</p>
+          <hr>
+          <h3>Alerts:</h3>
+          {{ range .Alerts }}
+          <p><strong>Instance:</strong> {{ .Labels.instance }}</p>
+          <p><strong>Started:</strong> {{ .StartsAt }}</p>
+          {{ end }}
+          <hr>
+          <p><small>This alert was sent by CBT Sekolah Alertmanager</small>
+    
+    webhook_configs:
+      - url: 'http://web:80/api/alerts/webhook'
+        send_resolved: true
+        http_config:
+          basic_auth:
+            username: 'alertmanager'
+            password: 'cbt_webhook_password_2024'
+    
+    slack_configs:
+      - api_url: 'https://hooks.slack.com/services/YOUR_SLACK_WEBHOOK'
+        channel: '#cbt-alerts'
+        title: 'CBT Sekolah Alert: {{ .GroupLabels.alertname }}'
+        text: |
+          *Alert:* {{ .GroupLabels.alertname }}
+          *Service:* {{ .GroupLabels.service }}
+          *Severity:* {{ .GroupLabels.severity }}
+          *Summary:* {{ .CommonAnnotations.summary }}
+          *Description:* {{ .CommonAnnotations.description }}
+          
+          {{ range .Alerts }}
+          *Instance:* {{ .Labels.instance }}
+          *Started:* {{ .StartsAt }}
+          {{ end }}
+        send_resolved: true
+
+  # CBT DBA Team - receives database alerts
+  - name: 'cbt-dba-team'
+    email_configs:
+      - to: 'dba@cbt-sekolah.local'
+        send_resolved: true
+        headers:
+          subject: 'CBT Database Alert: {{ .GroupLabels.alertname }}'
+        html: |
+          <h2>CBT Database Alert</h2>
+          <p><strong>Alert:</strong> {{ .GroupLabels.alertname }}</p>
+          <p><strong>Service:</strong> {{ .GroupLabels.service }}</p>
+          <p><strong>Severity:</strong> {{ .GroupLabels.severity }}</p>
+          <p><strong>Summary:</strong> {{ .CommonAnnotations.summary }}</p>
+          <p><strong>Description:</strong> {{ .CommonAnnotations.description }}</p>
+          <hr>
+          <h3>Database Metrics:</h3>
+          {{ range .Alerts }}
+          <p><strong>Instance:</strong> {{ .Labels.instance }}</p>
+          <p><strong>Started:</strong> {{ .StartsAt }}</p>
+          {{ end }}
+          <hr>
+          <p><small>This alert was sent by CBT Sekolah Alertmanager</small>
+    
+    webhook_configs:
+      - url: 'http://web:80/api/alerts/database'
+        send_resolved: true
+
+  # CBT Security Team - receives security alerts
+  - name: 'cbt-security-team'
+    email_configs:
+      - to: 'security@cbt-sekolah.local'
+        send_resolved: true
+        headers:
+          subject: 'CBT Security Alert: {{ .GroupLabels.alertname }}'
+        html: |
+          <h2>CBT Security Alert</h2>
+          <p><strong>Alert:</strong> {{ .GroupLabels.alertname }}</p>
+          <p><strong>Service:</strong> {{ .GroupLabels.service }}</p>
+          <p><strong>Severity:</strong> {{ .GroupLabels.severity }}</p>
+          <p><strong>Summary:</strong> {{ .CommonAnnotations.summary }}</p>
+          <p><strong>Description:</strong> {{ .CommonAnnotations.description }}</p>
+          <hr>
+          <h3>Security Details:</h3>
+          {{ range .Alerts }}
+          <p><strong>Instance:</strong> {{ .Labels.instance }}</p>
+          <p><strong>Started:</strong> {{ .StartsAt }}</p>
+          {{ end }}
+          <hr>
+          <p><small>This alert was sent by CBT Sekolah Alertmanager</small>
+    
+    webhook_configs:
+      - url: 'http://web:80/api/alerts/security'
+        send_resolved: true
+
+  # CBT DevOps Team - receives performance alerts
+  - name: 'cbt-devops-team'
+    email_configs:
+      - to: 'devops@cbt-sekolah.local'
+        send_resolved: true
+        headers:
+          subject: 'CBT Performance Alert: {{ .GroupLabels.alertname }}'
+        html: |
+          <h2>CBT Performance Alert</h2>
+          <p><strong>Alert:</strong> {{ .GroupLabels.alertname }}</p>
+          <p><strong>Service:</strong> {{ .GroupLabels.service }}</p>
+          <p><strong>Severity:</strong> {{ .GroupLabels.severity }}</p>
+          <p><strong>Summary:</strong> {{ .CommonAnnotations.summary }}</p>
+          <p><strong>Description:</strong> {{ .CommonAnnotations.description }}</p>
+          <hr>
+          <h3>Performance Metrics:</h3>
+          {{ range .Alerts }}
+          <p><strong>Instance:</strong> {{ .Labels.instance }}</p>
+          <p><strong>Started:</strong> {{ .StartsAt }}</p>
+          {{ end }}
+          <hr>
+          <p><small>This alert was sent by CBT Sekolah Alertmanager</small>
+    
+    webhook_configs:
+      - url: 'http://web:80/api/alerts/performance'
+        send_resolved: true
+
+  # CBT Education Team - receives exam system alerts
+  - name: 'cbt-education-team'
+    email_configs:
+      - to: 'education@cbt-sekolah.local'
+        send_resolved: true
+        headers:
+          subject: 'CBT Exam System Alert: {{ .GroupLabels.alertname }}'
+        html: |
+          <h2>CBT Exam System Alert</h2>
+          <p><strong>Alert:</strong> {{ .GroupLabels.alertname }}</p>
+          <p><strong>Service:</strong> {{ .GroupLabels.service }}</p>
+          <p><strong>Severity:</strong> {{ .GroupLabels.severity }}</p>
+          <p><strong>Summary:</strong> {{ .CommonAnnotations.summary }}</p>
+          <p><strong>Description:</strong> {{ .CommonAnnotations.description }}</p>
+          <hr>
+          <h3>Exam System Status:</h3>
+          {{ range .Alerts }}
+          <p><strong>Instance:</strong> {{ .Labels.instance }}</p>
+          <p><strong>Started:</strong> {{ .StartsAt }}</p>
+          {{ end }}
+          <hr>
+          <p><small>This alert was sent by CBT Sekolah Alertmanager</small>
+    
+    webhook_configs:
+      - url: 'http://web:80/api/alerts/exam-system'
+        send_resolved: true
+
+# Time interval configurations
+time_intervals:
+  - name: 'workdays'
+    time_intervals:
+      - weekdays: ['monday:friday']
+        times:
+          - start_time: 08:00
+            end_time: 18:00
+        location: 'Asia/Jakarta'
+      
+  - name: 'weekends'
+    time_intervals:
+      - weekdays: ['saturday', 'sunday']
+        times:
+          - start_time: 00:00
+            end_time: 23:59
+        location: 'Asia/Jakarta'
+      
+  - name: 'off-hours'
+    time_intervals:
+      - weekdays: ['monday:friday']
+        times:
+          - start_time: 18:00
+            end_time: 08:00
+        location: 'Asia/Jakarta'
+      - weekdays: ['saturday', 'sunday']
+        times:
+          - start_time: 00:00
+            end_time: 23:59
+        location: 'Asia/Jakarta'
+
+# Template configurations
+templates:
+  - '/etc/alertmanager/template/*.tmpl'
+
+# Global HTTP configuration
+http_config:
+  follow_redirects: true
+  enable_http2: true
+  tls_config:
+    insecure_skip_verify: false
+    ca_file: '/etc/ssl/certs/ca-certificates.crt'
+    cert_file: '/etc/ssl/certs/alertmanager.crt'
+    key_file: '/etc/ssl/private/alertmanager.key'

@@ -1,0 +1,218 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+echo "🔍 Running pre-commit checks..."
+
+# Run lint-staged
+npx lint-staged
+
+# Run PHP linting
+echo "🔍 Checking PHP syntax..."
+find . -name "*.php" -not -path "./vendor/*" -not -path "./node_modules/*" -exec php -l {} \;
+
+# Run PHP CodeSniffer
+echo "🔍 Running PHP CodeSniffer..."
+if [ -f "vendor/bin/phpcs" ]; then
+    vendor/bin/phpcs --standard=PSR12 src/ config/ tests/
+fi
+
+# Run PHPStan
+echo "🔍 Running PHPStan..."
+if [ -f "vendor/bin/phpstan" ]; then
+    vendor/bin/phpstan analyse src/ config/ tests/ --level=5
+fi
+
+# Run PHPUnit tests
+echo "🧪 Running PHPUnit tests..."
+if [ -f "vendor/bin/phpunit" ]; then
+    vendor/bin/phpunit --stop-on-failure
+fi
+
+# Run JavaScript tests
+echo "🧪 Running JavaScript tests..."
+if [ -f "node_modules/.bin/jest" ]; then
+    npm run test:ci
+fi
+
+# Check for merge conflicts
+echo "🔍 Checking for merge conflicts..."
+if grep -r "<<<<<<< HEAD" . --exclude-dir=node_modules --exclude-dir=vendor --exclude-dir=.git; then
+    echo "❌ Merge conflicts detected!"
+    exit 1
+fi
+
+# Check for TODO comments
+echo "🔍 Checking for TODO comments..."
+if grep -r "TODO:" . --exclude-dir=node_modules --exclude-dir=vendor --exclude-dir=.git --exclude-dir=coverage; then
+    echo "⚠️  TODO comments found. Consider addressing them before committing."
+fi
+
+# Check for FIXME comments
+echo "🔍 Checking for FIXME comments..."
+if grep -r "FIXME:" . --exclude-dir=node_modules --exclude-dir=vendor --exclude-dir=.git --exclude-dir=coverage; then
+    echo "⚠️  FIXME comments found. Consider addressing them before committing."
+fi
+
+# Check for console.log statements
+echo "🔍 Checking for console.log statements..."
+if grep -r "console\.log" . --exclude-dir=node_modules --exclude-dir=vendor --exclude-dir=.git --exclude-dir=coverage --exclude-dir=tests; then
+    echo "⚠️  console.log statements found. Consider removing them before committing."
+fi
+
+# Check for var statements
+echo "🔍 Checking for var statements..."
+if grep -r "\bvar\b" . --exclude-dir=node_modules --exclude-dir=vendor --exclude-dir=.git --exclude-dir=coverage --exclude-dir=tests; then
+    echo "⚠️  var statements found. Consider using const or let instead."
+fi
+
+# Check for hardcoded passwords
+echo "🔍 Checking for hardcoded passwords..."
+if grep -r "password.*=.*['\"][^'\"]*['\"]" . --exclude-dir=node_modules --exclude-dir=vendor --exclude-dir=.git --exclude-dir=coverage --exclude-dir=tests; then
+    echo "⚠️  Potential hardcoded passwords found. Consider using environment variables."
+fi
+
+# Check for hardcoded API keys
+echo "🔍 Checking for hardcoded API keys..."
+if grep -r "api_key.*=.*['\"][^'\"]*['\"]\|apiKey.*=.*['\"][^'\"]*['\"]" . --exclude-dir=node_modules --exclude-dir=vendor --exclude-dir=.git --exclude-dir=coverage --exclude-dir=tests; then
+    echo "⚠️  Potential hardcoded API keys found. Consider using environment variables."
+fi
+
+# Check for hardcoded database credentials
+echo "🔍 Checking for hardcoded database credentials..."
+if grep -r "host.*=.*['\"][^'\"]*['\"]\|user.*=.*['\"][^'\"]*['\"]\|password.*=.*['\"][^'\"]*['\"]\|database.*=.*['\"][^'\"]*['\"]" . --exclude-dir=node_modules --exclude-dir=vendor --exclude-dir=.git --exclude-dir=coverage --exclude-dir=tests; then
+    echo "⚠️  Potential hardcoded database credentials found. Consider using environment variables."
+fi
+
+# Check for hardcoded URLs
+echo "🔍 Checking for hardcoded URLs..."
+if grep -r "http://localhost\|http://127.0.0.1\|http://0.0.0.0" . --exclude-dir=node_modules --exclude-dir=vendor --exclude-dir=.git --exclude-dir=coverage --exclude-dir=tests; then
+    echo "⚠️  Hardcoded localhost URLs found. Consider using environment variables."
+fi
+
+# Check for debug statements
+echo "🔍 Checking for debug statements..."
+if grep -r "debugger\|dd(.*)\|dump(.*)\|var_dump(.*)" . --exclude-dir=node_modules --exclude-dir=vendor --exclude-dir=.git --exclude-dir=coverage --exclude-dir=tests; then
+    echo "⚠️  Debug statements found. Consider removing them before committing."
+fi
+
+# Check for test files in production directories
+echo "🔍 Checking for test files in production directories..."
+if find src/ -name "*.test.*" -o -name "*.spec.*" -o -name "*Test.*" -o -name "*Spec.*"; then
+    echo "❌ Test files found in production directories!"
+    exit 1
+fi
+
+# Check for vendor files in source directories
+echo "🔍 Checking for vendor files in source directories..."
+if find src/ -name "vendor" -type d; then
+    echo "❌ Vendor directory found in source directories!"
+    exit 1
+fi
+
+# Check for node_modules in source directories
+echo "🔍 Checking for node_modules in source directories..."
+if find src/ -name "node_modules" -type d; then
+    echo "❌ node_modules directory found in source directories!"
+    exit 1
+fi
+
+# Check for .git in source directories
+echo "🔍 Checking for .git in source directories..."
+if find src/ -name ".git" -type d; then
+    echo "❌ .git directory found in source directories!"
+    exit 1
+fi
+
+# Check for backup files
+echo "🔍 Checking for backup files..."
+if find . -name "*.bak" -o -name "*.backup" -o -name "*.old" -o -name "*.orig" -o -name "*~" --exclude-dir=node_modules --exclude-dir=vendor --exclude-dir=.git --exclude-dir=coverage; then
+    echo "⚠️  Backup files found. Consider removing them before committing."
+fi
+
+# Check for temporary files
+echo "🔍 Checking for temporary files..."
+if find . -name "*.tmp" -o -name "*.temp" -o -name ".DS_Store" -o -name "Thumbs.db" --exclude-dir=node_modules --exclude-dir=vendor --exclude-dir=.git --exclude-dir=coverage; then
+    echo "⚠️  Temporary files found. Consider removing them before committing."
+fi
+
+# Check for large files
+echo "🔍 Checking for large files..."
+find . -type f -size +10M -not -path "./node_modules/*" -not -path "./vendor/*" -not -path "./.git/*" -not -path "./coverage/*" -not -path "./uploads/*" -not -path "./backups/*" | while read file; do
+    echo "⚠️  Large file found: $file"
+done
+
+# Check for binary files
+echo "🔍 Checking for binary files..."
+find . -type f -exec file {} \; | grep -E "(executable|binary)" | grep -v "node_modules" | grep -v "vendor" | grep -v ".git" | grep -v "coverage" | while read file; do
+    echo "⚠️  Binary file found: $file"
+done
+
+# Check for sensitive files
+echo "🔍 Checking for sensitive files..."
+if find . -name ".env" -o -name ".env.*" -o -name "*.key" -o -name "*.pem" -o -name "*.crt" -o -name "*.p12" -o -name "*.pfx" --exclude-dir=node_modules --exclude-dir=vendor --exclude-dir=.git --exclude-dir=coverage --exclude-dir=ssl --exclude-dir=certs; then
+    echo "⚠️  Sensitive files found. Ensure they are properly excluded from version control."
+fi
+
+# Check for license headers
+echo "🔍 Checking for license headers..."
+find . -name "*.php" -o -name "*.js" -o -name "*.jsx" -o -name "*.ts" -o -name "*.tsx" -o -name "*.css" -o -name "*.scss" -o -name "*.html" | grep -v "node_modules" | grep -v "vendor" | grep -v ".git" | grep -v "coverage" | head -10 | while read file; do
+    if ! head -5 "$file" | grep -q "MIT License\|Apache License\|GPL\|BSD"; then
+        echo "⚠️  License header not found in: $file"
+    fi
+done
+
+# Check for documentation
+echo "🔍 Checking for documentation..."
+if [ ! -f "README.md" ]; then
+    echo "⚠️  README.md not found. Consider adding project documentation."
+fi
+
+if [ ! -f "CHANGELOG.md" ]; then
+    echo "⚠️  CHANGELOG.md not found. Consider adding a changelog."
+fi
+
+if [ ! -f "LICENSE" ]; then
+    echo "⚠️  LICENSE file not found. Consider adding a license."
+fi
+
+# Check for dependency files
+echo "🔍 Checking for dependency files..."
+if [ ! -f "composer.json" ]; then
+    echo "⚠️  composer.json not found. Consider adding PHP dependencies."
+fi
+
+if [ ! -f "package.json" ]; then
+    echo "⚠️  package.json not found. Consider adding Node.js dependencies."
+fi
+
+# Check for configuration files
+echo "🔍 Checking for configuration files..."
+if [ ! -f ".env.example" ]; then
+    echo "⚠️  .env.example not found. Consider adding environment variable examples."
+fi
+
+if [ ! -f "docker-compose.yml" ]; then
+    echo "⚠️  docker-compose.yml not found. Consider adding Docker configuration."
+fi
+
+# Check for CI/CD files
+echo "🔍 Checking for CI/CD files..."
+if [ ! -f ".github/workflows/ci.yml" ] && [ ! -f ".gitlab-ci.yml" ] && [ ! -f ".travis.yml" ]; then
+    echo "⚠️  CI/CD configuration not found. Consider adding automated testing and deployment."
+fi
+
+# Check for security files
+echo "🔍 Checking for security files..."
+if [ ! -f ".gitignore" ]; then
+    echo "⚠️  .gitignore not found. Consider adding file exclusions."
+fi
+
+if [ ! -f ".dockerignore" ]; then
+    echo "⚠️  .dockerignore not found. Consider adding Docker file exclusions."
+fi
+
+# Final check
+echo "✅ Pre-commit checks completed successfully!"
+echo "🚀 Ready to commit!"
+
+exit 0

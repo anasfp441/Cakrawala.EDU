@@ -1,0 +1,582 @@
+{
+  "presets": [
+    [
+      "@babel/preset-env",
+      {
+        "targets": {
+          "browsers": [
+            "> 1%",
+            "last 2 versions",
+            "not dead",
+            "not ie 11"
+          ],
+          "node": "16"
+        },
+        "useBuiltIns": "usage",
+        "corejs": {
+          "version": "3.32",
+          "proposals": true
+        },
+        "modules": "auto",
+        "loose": false,
+        "debug": false,
+        "include": [
+          "transform-arrow-functions",
+          "transform-block-scoped-functions",
+          "transform-block-scoping",
+          "transform-classes",
+          "transform-computed-properties",
+          "transform-destructuring",
+          "transform-duplicate-keys",
+          "transform-for-of",
+          "transform-function-name",
+          "transform-instanceof",
+          "transform-literals",
+          "transform-modules-commonjs",
+          "transform-object-super",
+          "transform-parameters",
+          "transform-shorthand-properties",
+          "transform-spread",
+          "transform-sticky-regex",
+          "transform-template-literals",
+          "transform-typeof-symbol",
+          "transform-unicode-regex"
+        ],
+        "exclude": [
+          "transform-async-to-generator",
+          "transform-regenerator"
+        ]
+      }
+    ],
+    [
+      "@babel/preset-react",
+      {
+        "runtime": "automatic",
+        "development": true,
+        "importSource": "@emotion/react"
+      }
+    ],
+    [
+      "@babel/preset-typescript",
+      {
+        "isTSX": true,
+        "allExtensions": true,
+        "allowNamespaces": true,
+        "allowDeclareFields": true,
+        "onlyRemoveTypeImports": true,
+        "strict": true,
+        "noEmit": true,
+        "isolatedModules": true,
+        "esModuleInterop": true,
+        "allowSyntheticDefaultImports": true,
+        "forceConsistentCasingInFileNames": true,
+        "skipLibCheck": true
+      }
+    ]
+  ],
+  "plugins": [
+    // Stage 0
+    "@babel/plugin-proposal-function-bind",
+    
+    // Stage 1
+    "@babel/plugin-proposal-export-default-from",
+    "@babel/plugin-proposal-logical-assignment-operators",
+    "@babel/plugin-proposal-optional-chaining",
+    "@babel/plugin-proposal-pipeline-operator",
+    "@babel/plugin-proposal-nullish-coalescing-operator",
+    "@babel/plugin-proposal-do-expressions",
+    
+    // Stage 2
+    "@babel/plugin-proposal-decorators",
+    "@babel/plugin-proposal-function-sent",
+    "@babel/plugin-proposal-export-namespace-from",
+    "@babel/plugin-proposal-numeric-separator",
+    "@babel/plugin-proposal-throw-expressions",
+    
+    // Stage 3
+    "@babel/plugin-proposal-dynamic-import",
+    "@babel/plugin-proposal-class-properties",
+    "@babel/plugin-proposal-json-strings",
+    "@babel/plugin-proposal-optional-catch-binding",
+    "@babel/plugin-proposal-unicode-property-regex",
+    
+    // Stage 4
+    "@babel/plugin-proposal-async-generator-functions",
+    "@babel/plugin-proposal-object-rest-spread",
+    "@babel/plugin-proposal-optional-catch-binding",
+    "@babel/plugin-proposal-unicode-property-regex",
+    
+    // React specific
+    "@babel/plugin-transform-react-jsx",
+    "@babel/plugin-transform-react-jsx-self",
+    "@babel/plugin-transform-react-jsx-source",
+    "@babel/plugin-transform-react-display-name",
+    
+    // Emotion
+    "@emotion/babel-plugin",
+    
+    // Lodash
+    "lodash",
+    
+    // Module resolver
+    [
+      "module-resolver",
+      {
+        "root": ["./src"],
+        "alias": {
+          "@": "./src",
+          "@components": "./src/components",
+          "@utils": "./src/utils",
+          "@services": "./src/services",
+          "@hooks": "./src/hooks",
+          "@types": "./src/types",
+          "@assets": "./src/assets",
+          "@styles": "./src/styles",
+          "@tests": "./tests"
+        },
+        "extensions": [
+          ".js",
+          ".jsx",
+          ".ts",
+          ".tsx",
+          ".json"
+        ]
+      }
+    ],
+    
+    // Import
+    [
+      "import",
+      {
+        "libraryName": "antd",
+        "style": true
+      },
+      "antd"
+    ],
+    [
+      "import",
+      {
+        "libraryName": "lodash",
+        "libraryDirectory": "",
+        "camel2DashComponentName": false
+      },
+      "lodash"
+    ],
+    
+    // Class properties
+    "@babel/plugin-proposal-class-properties",
+    "@babel/plugin-proposal-private-methods",
+    "@babel/plugin-proposal-private-property-in-object",
+    
+    // Object rest spread
+    "@babel/plugin-proposal-object-rest-spread",
+    
+    // Optional chaining
+    "@babel/plugin-proposal-optional-chaining",
+    "@babel/plugin-proposal-nullish-coalescing-operator",
+    
+    // Decorators
+    [
+      "@babel/plugin-proposal-decorators",
+      {
+        "legacy": true
+      }
+    ],
+    
+    // Export extensions
+    "@babel/plugin-proposal-export-default-from",
+    "@babel/plugin-proposal-export-namespace-from",
+    
+    // Function bind
+    "@babel/plugin-proposal-function-bind",
+    
+    // Pipeline operator
+    "@babel/plugin-proposal-pipeline-operator",
+    
+    // Partial application
+    "@babel/plugin-proposal-partial-application",
+    
+    // Throw expressions
+    "@babel/plugin-proposal-throw-expressions",
+    
+    // Numeric separator
+    "@babel/plugin-proposal-numeric-separator",
+    
+    // Logical assignment
+    "@babel/plugin-proposal-logical-assignment-operators",
+    
+    // Do expressions
+    "@babel/plugin-proposal-do-expressions",
+    
+    // Function sent
+    "@babel/plugin-proposal-function-sent",
+    
+    // Export extensions
+    "@babel/plugin-proposal-export-default-from",
+    "@babel/plugin-proposal-export-namespace-from",
+    
+    // Dynamic import
+    "@babel/plugin-syntax-dynamic-import",
+    
+    // Top level await
+    "@babel/plugin-syntax-top-level-await",
+    
+    // Class static block
+    "@babel/plugin-proposal-class-static-block",
+    
+    // Record and tuple
+    "@babel/plugin-proposal-record-and-tuple",
+    
+    // Module blocks
+    "@babel/plugin-proposal-module-blocks",
+    
+    // Async do expressions
+    "@babel/plugin-proposal-async-do-expressions",
+    
+    // Module string names
+    "@babel/plugin-proposal-module-string-names",
+    
+    // Optional chaining assignment
+    "@babel/plugin-proposal-optional-chaining-assignment",
+    
+    // Pipeline operator
+    [
+      "@babel/plugin-proposal-pipeline-operator",
+      {
+        "proposal": "minimal"
+      }
+    ],
+    
+    // Throw expressions
+    "@babel/plugin-proposal-throw-expressions",
+    
+    // Unicode property regex
+    "@babel/plugin-proposal-unicode-property-regex",
+    
+    // Private property in object
+    "@babel/plugin-proposal-private-property-in-object",
+    
+    // Class properties
+    [
+      "@babel/plugin-proposal-class-properties",
+      {
+        "loose": false
+      }
+    ],
+    
+    // Private methods
+    [
+      "@babel/plugin-proposal-private-methods",
+      {
+        "loose": false
+      }
+    ],
+    
+    // Object rest spread
+    [
+      "@babel/plugin-proposal-object-rest-spread",
+      {
+        "loose": false,
+        "useBuiltIns": true
+      }
+    ],
+    
+    // Optional chaining
+    [
+      "@babel/plugin-proposal-optional-chaining",
+      {
+        "loose": false
+      }
+    ],
+    
+    // Nullish coalescing
+    [
+      "@babel/plugin-proposal-nullish-coalescing-operator",
+      {
+        "loose": false
+      }
+    ],
+    
+    // Logical assignment
+    [
+      "@babel/plugin-proposal-logical-assignment-operators",
+      {
+        "loose": false
+      }
+    ],
+    
+    // Numeric separator
+    [
+      "@babel/plugin-proposal-numeric-separator",
+      {
+        "loose": false
+      }
+    ],
+    
+    // Throw expressions
+    [
+      "@babel/plugin-proposal-throw-expressions",
+      {
+        "loose": false
+      }
+    ],
+    
+    // Function sent
+    [
+      "@babel/plugin-proposal-function-sent",
+      {
+        "loose": false
+      }
+    ],
+    
+    // Export default from
+    [
+      "@babel/plugin-proposal-export-default-from",
+      {
+        "loose": false
+      }
+    ],
+    
+    // Export namespace from
+    [
+      "@babel/plugin-proposal-export-namespace-from",
+      {
+        "loose": false
+      }
+    ],
+    
+    // Do expressions
+    [
+      "@babel/plugin-proposal-do-expressions",
+      {
+        "loose": false
+      }
+    ],
+    
+    // Function bind
+    [
+      "@babel/plugin-proposal-function-bind",
+      {
+        "loose": false
+      }
+    ],
+    
+    // Partial application
+    [
+      "@babel/plugin-proposal-partial-application",
+      {
+        "loose": false
+      }
+    ],
+    
+    // Pipeline operator
+    [
+      "@babel/plugin-proposal-pipeline-operator",
+      {
+        "proposal": "minimal",
+        "loose": false
+      }
+    ],
+    
+    // Record and tuple
+    [
+      "@babel/plugin-proposal-record-and-tuple",
+      {
+        "loose": false
+      }
+    ],
+    
+    // Module blocks
+    [
+      "@babel/plugin-proposal-module-blocks",
+      {
+        "loose": false
+      }
+    ],
+    
+    // Async do expressions
+    [
+      "@babel/plugin-proposal-async-do-expressions",
+      {
+        "loose": false
+      }
+    ],
+    
+    // Module string names
+    [
+      "@babel/plugin-proposal-module-string-names",
+      {
+        "loose": false
+      }
+    ],
+    
+    // Optional chaining assignment
+    [
+      "@babel/plugin-proposal-optional-chaining-assignment",
+      {
+        "loose": false
+      }
+    ],
+    
+    // Unicode property regex
+    [
+      "@babel/plugin-proposal-unicode-property-regex",
+      {
+        "loose": false
+      }
+    ],
+    
+    // Class static block
+    [
+      "@babel/plugin-proposal-class-static-block",
+      {
+        "loose": false
+      }
+    ],
+    
+    // Private property in object
+    [
+      "@babel/plugin-proposal-private-property-in-object",
+      {
+        "loose": false
+      }
+    ]
+  ],
+  "env": {
+    "development": {
+      "presets": [
+        [
+          "@babel/preset-env",
+          {
+            "targets": {
+              "browsers": [
+                "> 1%",
+                "last 2 versions",
+                "not dead",
+                "not ie 11"
+              ]
+            },
+            "useBuiltIns": "usage",
+            "corejs": {
+              "version": "3.32",
+              "proposals": true
+            },
+            "modules": false,
+            "loose": false,
+            "debug": true
+          }
+        ]
+      ],
+      "plugins": [
+        "@babel/plugin-transform-react-jsx-source",
+        "@babel/plugin-transform-react-jsx-self"
+      ]
+    },
+    "production": {
+      "presets": [
+        [
+          "@babel/preset-env",
+          {
+            "targets": {
+              "browsers": [
+                "> 1%",
+                "last 2 versions",
+                "not dead",
+                "not ie 11"
+              ]
+            },
+            "useBuiltIns": "usage",
+            "corejs": {
+              "version": "3.32",
+              "proposals": true
+            },
+            "modules": false,
+            "loose": true,
+            "debug": false
+          }
+        ]
+      ],
+      "plugins": [
+        "@babel/plugin-transform-react-jsx-source",
+        "@babel/plugin-transform-react-jsx-self",
+        "@babel/plugin-transform-react-constant-elements",
+        "@babel/plugin-transform-react-inline-elements"
+      ]
+    },
+    "test": {
+      "presets": [
+        [
+          "@babel/preset-env",
+          {
+            "targets": {
+              "node": "current"
+            },
+            "useBuiltIns": "usage",
+            "corejs": {
+              "version": "3.32",
+              "proposals": true
+            },
+            "modules": "commonjs",
+            "loose": false,
+            "debug": false
+          }
+        ]
+      ],
+      "plugins": [
+        "@babel/plugin-transform-modules-commonjs"
+      ]
+    }
+  },
+  "ignore": [
+    "node_modules",
+    "coverage",
+    "dist",
+    "build",
+    ".git",
+    ".vscode",
+    ".idea",
+    "tests/__mocks__",
+    "tests/setup"
+  ],
+  "comments": false,
+  "compact": false,
+  "minified": false,
+  "sourceMaps": true,
+  "retainLines": false,
+  "shouldPrintComment": false,
+  "wrapPluginVisitorMethod": false,
+  "highlightCode": true,
+  "parserOpts": {
+    "sourceType": "module",
+    "allowImportExportEverywhere": false,
+    "allowReturnOutsideFunction": false,
+    "allowSuperOutsideMethod": false,
+    "allowUndeclaredExports": false,
+    "allowUndeclaredImports": false,
+    "allowUndeclaredVariables": false,
+    "allowUndeclaredFunctions": false,
+    "allowUndeclaredClasses": false,
+    "allowUndeclaredInterfaces": false,
+    "allowUndeclaredTypes": false,
+    "allowUndeclaredNamespaces": false,
+    "allowUndeclaredModules": false,
+    "allowUndeclaredExports": false,
+    "allowUndeclaredImports": false,
+    "allowUndeclaredVariables": false,
+    "allowUndeclaredFunctions": false,
+    "allowUndeclaredClasses": false,
+    "allowUndeclaredInterfaces": false,
+    "allowUndeclaredTypes": false,
+    "allowUndeclaredNamespaces": false,
+    "allowUndeclaredModules": false
+  },
+  "generatorOpts": {
+    "retainLines": false,
+    "compact": false,
+    "minified": false,
+    "comments": false,
+    "shouldPrintComment": false,
+    "wrapPluginVisitorMethod": false,
+    "highlightCode": true
+  }
+}

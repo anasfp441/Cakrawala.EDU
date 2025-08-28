@@ -1,0 +1,450 @@
+# CBT Sekolah - Docker Compose Configuration
+# File ini untuk menjalankan aplikasi CBT Sekolah dengan semua service yang diperlukan
+
+version: '3.8'
+
+services:
+  # Web Application (PHP + Apache)
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    container_name: cbt-sekolah-web
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./uploads:/var/www/html/uploads
+      - ./logs:/var/www/html/logs
+      - ./cache:/var/www/html/cache
+      - ./backups:/var/www/html/backups
+      - ./config:/var/www/html/config
+    environment:
+      - APP_ENV=production
+      - DB_HOST=database
+      - DB_NAME=cbt_sekolah_db
+      - DB_USER=cbt_web
+      - DB_PASS=cbt_web_password_2024
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    depends_on:
+      - database
+      - redis
+    networks:
+      - cbt-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Database (MySQL)
+  database:
+    image: mysql:8.0
+    container_name: cbt-sekolah-db
+    restart: unless-stopped
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=cbt_root_password_2024
+      - MYSQL_DATABASE=cbt_sekolah_db
+      - MYSQL_USER=cbt_web
+      - MYSQL_PASSWORD=cbt_web_password_2024
+      - MYSQL_CHARACTER_SET_SERVER=utf8mb4
+      - MYSQL_COLLATION_SERVER=utf8mb4_unicode_ci
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./database.sql:/docker-entrypoint-initdb.d/01-init.sql
+      - ./docker/mysql.cnf:/etc/mysql/conf.d/custom.cnf
+      - ./backups:/backups
+    networks:
+      - cbt-network
+    command: --default-authentication-plugin=mysql_native_password
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p$$MYSQL_ROOT_PASSWORD"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: cbt-sekolah-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+      - ./docker/redis.conf:/usr/local/etc/redis/redis.conf
+    command: redis-server /usr/local/etc/redis/redis.conf
+    networks:
+      - cbt-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Nginx Reverse Proxy (Optional)
+  nginx:
+    image: nginx:alpine
+    container_name: cbt-sekolah-nginx
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+      - "8443:443"
+    volumes:
+      - ./docker/nginx.conf:/etc/nginx/nginx.conf
+      - ./docker/nginx-site.conf:/etc/nginx/conf.d/default.conf
+      - ./docker/ssl:/etc/nginx/ssl
+      - ./uploads:/var/www/html/uploads:ro
+    depends_on:
+      - web
+    networks:
+      - cbt-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # PHP-FPM (Alternative to Apache)
+  php-fpm:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: php-fpm
+    container_name: cbt-sekolah-php-fpm
+    restart: unless-stopped
+    ports:
+      - "9000:9000"
+    volumes:
+      - ./:/var/www/html
+      - ./uploads:/var/www/html/uploads
+      - ./logs:/var/www/html/logs
+      - ./cache:/var/www/html/cache
+    environment:
+      - APP_ENV=production
+      - DB_HOST=database
+      - DB_NAME=cbt_sekolah_db
+      - DB_USER=cbt_web
+      - DB_PASS=cbt_web_password_2024
+    depends_on:
+      - database
+      - redis
+    networks:
+      - cbt-network
+    healthcheck:
+      test: ["CMD-SHELL", "php-fpm -t"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Mail Server (Postfix for email notifications)
+  mail:
+    image: catatnight/postfix
+    container_name: cbt-sekolah-mail
+    restart: unless-stopped
+    ports:
+      - "25:25"
+    environment:
+      - maildomain=cbtsekolah.com
+      - smtp_user=cbt:password
+    volumes:
+      - mail_data:/var/mail
+    networks:
+      - cbt-network
+
+  # Backup Service
+  backup:
+    image: mysql:8.0
+    container_name: cbt-sekolah-backup
+    restart: "no"
+    volumes:
+      - ./backups:/backups
+      - ./docker/backup.sh:/backup.sh
+    environment:
+      - MYSQL_ROOT_PASSWORD=cbt_root_password_2024
+      - MYSQL_DATABASE=cbt_sekolah_db
+      - MYSQL_USER=cbt_web
+      - MYSQL_PASSWORD=cbt_web_password_2024
+    depends_on:
+      - database
+    networks:
+      - cbt-network
+    command: /bin/bash /backup.sh
+    profiles:
+      - backup
+
+  # Development Environment
+  dev-web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+    container_name: cbt-sekolah-dev
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    volumes:
+      - .:/var/www/html
+      - ./uploads:/var/www/html/uploads
+      - ./logs:/var/www/html/logs
+      - ./cache:/var/www/html/cache
+    environment:
+      - APP_ENV=development
+      - DEBUG=true
+      - DB_HOST=dev-database
+      - DB_NAME=cbt_sekolah_dev
+      - DB_USER=cbt_dev
+      - DB_PASS=cbt_dev_password
+    depends_on:
+      - dev-database
+    networks:
+      - cbt-dev-network
+    profiles:
+      - development
+
+  dev-database:
+    image: mysql:8.0
+    container_name: cbt-sekolah-dev-db
+    restart: unless-stopped
+    ports:
+      - "3307:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=cbt_dev_root_password
+      - MYSQL_DATABASE=cbt_sekolah_dev
+      - MYSQL_USER=cbt_dev
+      - MYSQL_PASSWORD=cbt_dev_password
+    volumes:
+      - dev_mysql_data:/var/lib/mysql
+      - ./database.sql:/docker-entrypoint-initdb.d/01-init.sql
+    networks:
+      - cbt-dev-network
+    profiles:
+      - development
+
+  # Testing Environment
+  test-web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+    container_name: cbt-sekolah-test
+    restart: "no"
+    ports:
+      - "4000:80"
+    volumes:
+      - .:/var/www/html
+    environment:
+      - APP_ENV=testing
+      - DB_HOST=test-database
+      - DB_NAME=cbt_sekolah_test
+      - DB_USER=cbt_test
+      - DB_PASS=cbt_test_password
+    depends_on:
+      - test-database
+    networks:
+      - cbt-test-network
+    profiles:
+      - testing
+
+  test-database:
+    image: mysql:8.0
+    container_name: cbt-sekolah-test-db
+    restart: "no"
+    ports:
+      - "3308:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=cbt_test_root_password
+      - MYSQL_DATABASE=cbt_sekolah_test
+      - MYSQL_USER=cbt_test
+      - MYSQL_PASSWORD=cbt_test_password
+    volumes:
+      - test_mysql_data:/var/lib/mysql
+      - ./database.sql:/docker-entrypoint-initdb.d/01-init.sql
+    networks:
+      - cbt-test-network
+    profiles:
+      - testing
+
+  # Monitoring (Optional)
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: cbt-sekolah-phpmyadmin
+    restart: unless-stopped
+    ports:
+      - "8081:80"
+    environment:
+      - PMA_HOST=database
+      - PMA_PORT=3306
+      - PMA_USER=cbt_web
+      - PMA_PASSWORD=cbt_web_password_2024
+      - MYSQL_ROOT_PASSWORD=cbt_root_password_2024
+    depends_on:
+      - database
+    networks:
+      - cbt-network
+    profiles:
+      - monitoring
+
+  # Redis Commander (Optional)
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: cbt-sekolah-redis-commander
+    restart: unless-stopped
+    ports:
+      - "8082:8081"
+    environment:
+      - REDIS_HOSTS=local:redis:6379
+    depends_on:
+      - redis
+    networks:
+      - cbt-network
+    profiles:
+      - monitoring
+
+  # Log Aggregation (Optional)
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.8.0
+    container_name: cbt-sekolah-elasticsearch
+    restart: unless-stopped
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    networks:
+      - cbt-network
+    profiles:
+      - monitoring
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.8.0
+    container_name: cbt-sekolah-kibana
+    restart: unless-stopped
+    ports:
+      - "8083:5601"
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    depends_on:
+      - elasticsearch
+    networks:
+      - cbt-network
+    profiles:
+      - monitoring
+
+  # Load Balancer (Optional)
+  haproxy:
+    image: haproxy:2.6
+    container_name: cbt-sekolah-haproxy
+    restart: unless-stopped
+    ports:
+      - "8084:80"
+      - "8085:8404"
+    volumes:
+      - ./docker/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
+    depends_on:
+      - web
+    networks:
+      - cbt-network
+    profiles:
+      - load-balancer
+
+volumes:
+  mysql_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./data/mysql
+  dev_mysql_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./data/dev-mysql
+  test_mysql_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./data/test-mysql
+  redis_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./data/redis
+  mail_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./data/mail
+  elasticsearch_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./data/elasticsearch
+
+networks:
+  cbt-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+  cbt-dev-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.21.0.0/16
+  cbt-test-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.22.0.0/16
+
+# Environment-specific configurations
+x-common-environment: &common-environment
+  TZ: Asia/Jakarta
+  PHP_TIMEZONE: Asia/Jakarta
+  MYSQL_TIMEZONE: +07:00
+
+x-production-environment: &production-environment
+  <<: *common-environment
+  APP_ENV: production
+  DEBUG: false
+  LOG_LEVEL: ERROR
+  CACHE_DRIVER: redis
+  SESSION_DRIVER: redis
+  QUEUE_DRIVER: redis
+
+x-development-environment: &development-environment
+  <<: *common-environment
+  APP_ENV: development
+  DEBUG: true
+  LOG_LEVEL: DEBUG
+  CACHE_DRIVER: file
+  SESSION_DRIVER: file
+  QUEUE_DRIVER: sync
+
+# Apply environment configurations
+services:
+  web:
+    environment:
+      <<: *production-environment
+  dev-web:
+    environment:
+      <<: *development-environment
+  test-web:
+    environment:
+      <<: *development-environment
+      APP_ENV: testing
+      LOG_LEVEL: INFO

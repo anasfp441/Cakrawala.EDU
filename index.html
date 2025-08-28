@@ -3,154 +3,443 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ebook Online - Petualangan di Dunia Digital</title>
+    <title>Sistem CBT Sekolah - Admin Dashboard</title>
     <link rel="stylesheet" href="styles.css">
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="ebook-container">
-        <!-- Header -->
-        <header class="ebook-header">
-            <div class="header-content">
+    <div class="container">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
                 <div class="logo">
-                    <i class="fas fa-book-open"></i>
-                    <span>Digital Library</span>
-                </div>
-                <nav class="nav-menu">
-                    <a href="#" class="nav-link active">Baca</a>
-                    <a href="#" class="nav-link">Perpustakaan</a>
-                    <a href="#" class="nav-link">Tentang</a>
-                </nav>
-                <div class="user-controls">
-                    <button class="btn btn-outline">
-                        <i class="fas fa-user"></i>
-                        Masuk
-                    </button>
+                    <i class="fas fa-graduation-cap"></i>
+                    <span>CBT Sekolah</span>
                 </div>
             </div>
-        </header>
+            
+            <ul class="sidebar-menu">
+                <li class="menu-item active" data-page="home">
+                    <i class="fas fa-home"></i>
+                    <span>Home Page</span>
+                </li>
+                <li class="menu-item" data-page="students">
+                    <i class="fas fa-users"></i>
+                    <span>Daftar Siswa</span>
+                </li>
+                <li class="menu-item" data-page="attendance">
+                    <i class="fas fa-calendar-check"></i>
+                    <span>Cek Absen Siswa</span>
+                </li>
+                <li class="menu-item" data-page="schedule">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span>Jadwal</span>
+                </li>
+                <li class="menu-item" data-page="materials">
+                    <i class="fas fa-book"></i>
+                    <span>Materi</span>
+                </li>
+                <li class="menu-item" data-page="assignments">
+                    <i class="fas fa-tasks"></i>
+                    <span>Tugas Harian</span>
+                </li>
+                <li class="menu-item" data-page="exams">
+                    <i class="fas fa-file-alt"></i>
+                    <span>Ujian</span>
+                </li>
+                <li class="menu-item" data-page="grades">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Nilai</span>
+                </li>
+                <li class="menu-item" data-page="settings">
+                    <i class="fas fa-cog"></i>
+                    <span>Pengaturan</span>
+                </li>
+            </ul>
+        </nav>
 
         <!-- Main Content -->
-        <main class="ebook-main">
-            <!-- Book Info -->
-            <div class="book-info">
-                <div class="book-cover">
-                    <img src="https://via.placeholder.com/200x280/4F46E5/FFFFFF?text=Cover" alt="Cover Buku">
+        <main class="main-content">
+            <header class="top-bar">
+                <div class="page-title">
+                    <h1 id="page-title">Halaman Home Admin</h1>
                 </div>
-                <div class="book-details">
-                    <h1 class="book-title">Petualangan di Dunia Digital</h1>
-                    <p class="book-author">Oleh: Ahmad Digital</p>
-                    <div class="book-meta">
-                        <span class="meta-item">
-                            <i class="fas fa-clock"></i>
-                            15 menit baca
-                        </span>
-                        <span class="meta-item">
-                            <i class="fas fa-eye"></i>
-                            1,234 pembaca
-                        </span>
-                        <span class="meta-item">
-                            <i class="fas fa-star"></i>
-                            4.8/5
-                        </span>
+                <div class="user-info">
+                    <span class="user-name">Admin</span>
+                    <div class="user-avatar">
+                        <i class="fas fa-user"></i>
                     </div>
-                    <div class="book-actions">
-                        <button class="btn btn-primary">
-                            <i class="fas fa-bookmark"></i>
-                            Simpan
+                </div>
+            </header>
+
+            <!-- Page Content -->
+            <div class="page-content">
+                <!-- Home Page -->
+                <div id="home" class="page active">
+                    <div class="dashboard-grid">
+                        <div class="dashboard-card">
+                            <div class="card-icon">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div class="card-content">
+                                <h3>Total Siswa</h3>
+                                <p class="card-number">1,247</p>
+                                <span class="card-change positive">+12% dari bulan lalu</span>
+                            </div>
+                        </div>
+                        
+                        <div class="dashboard-card">
+                            <div class="card-icon">
+                                <i class="fas fa-file-alt"></i>
+                            </div>
+                            <div class="card-content">
+                                <h3>Ujian Aktif</h3>
+                                <p class="card-number">8</p>
+                                <span class="card-change">3 ujian hari ini</span>
+                            </div>
+                        </div>
+                        
+                        <div class="dashboard-card">
+                            <div class="card-icon">
+                                <i class="fas fa-book"></i>
+                            </div>
+                            <div class="card-content">
+                                <h3>Materi Tersedia</h3>
+                                <p class="card-number">156</p>
+                                <span class="card-change positive">+5 materi baru</span>
+                            </div>
+                        </div>
+                        
+                        <div class="dashboard-card">
+                            <div class="card-icon">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                            <div class="card-content">
+                                <h3>Rata-rata Nilai</h3>
+                                <p class="card-number">8.5</p>
+                                <span class="card-change positive">+0.3 dari ujian sebelumnya</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="recent-activities">
+                        <h2>Aktivitas Terbaru</h2>
+                        <div class="activity-list">
+                            <div class="activity-item">
+                                <div class="activity-icon">
+                                    <i class="fas fa-user-plus"></i>
+                                </div>
+                                <div class="activity-content">
+                                    <p>Siswa baru terdaftar: Ahmad Fadillah</p>
+                                    <span class="activity-time">2 jam yang lalu</span>
+                                </div>
+                            </div>
+                            <div class="activity-item">
+                                <div class="activity-icon">
+                                    <i class="fas fa-file-alt"></i>
+                                </div>
+                                <div class="activity-content">
+                                    <p>Ujian Matematika Kelas 10A selesai</p>
+                                    <span class="activity-time">4 jam yang lalu</span>
+                                </div>
+                            </div>
+                            <div class="activity-item">
+                                <div class="activity-icon">
+                                    <i class="fas fa-book"></i>
+                                </div>
+                                <div class="activity-content">
+                                    <p>Materi baru: Sejarah Indonesia</p>
+                                    <span class="activity-time">6 jam yang lalu</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Students Page -->
+                <div id="students" class="page">
+                    <div class="page-header">
+                        <h2>Daftar Siswa</h2>
+                        <button class="btn btn-primary" onclick="showAddStudentModal()">
+                            <i class="fas fa-plus"></i> Tambah Siswa
                         </button>
+                    </div>
+                    
+                    <div class="search-bar">
+                        <input type="text" id="student-search" placeholder="Cari siswa...">
                         <button class="btn btn-secondary">
-                            <i class="fas fa-share"></i>
-                            Bagikan
+                            <i class="fas fa-search"></i>
                         </button>
                     </div>
-                </div>
-            </div>
-
-            <!-- Reading Controls -->
-            <div class="reading-controls">
-                <div class="control-group">
-                    <button class="control-btn" id="font-decrease">
-                        <i class="fas fa-minus"></i>
-                    </button>
-                    <span class="font-size-display">16px</span>
-                    <button class="control-btn" id="font-increase">
-                        <i class="fas fa-plus"></i>
-                    </button>
-                </div>
-                <div class="control-group">
-                    <button class="control-btn" id="theme-toggle">
-                        <i class="fas fa-moon"></i>
-                    </button>
-                    <button class="control-btn" id="fullscreen">
-                        <i class="fas fa-expand"></i>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Book Content -->
-            <div class="book-content" id="book-content">
-                <div class="chapter">
-                    <h2>Bab 1: Memulai Perjalanan</h2>
                     
-                    <p>Di era digital yang semakin maju, teknologi telah menjadi bagian tak terpisahkan dari kehidupan kita sehari-hari. Setiap pagi, kita bangun dengan smartphone di tangan, memeriksa notifikasi, dan memulai hari dengan informasi yang mengalir deras dari berbagai sumber.</p>
-                    
-                    <p>Namun, di balik kemudahan yang ditawarkan teknologi, tersembunyi tantangan yang tidak kalah besarnya. Bagaimana kita bisa memanfaatkan teknologi dengan bijak? Bagaimana kita bisa tetap produktif di tengah distraksi yang tak terhitung jumlahnya?</p>
-                    
-                    <p>Buku ini akan membawa Anda dalam perjalanan mendalam untuk memahami dunia digital, dari dasar-dasar teknologi hingga strategi praktis untuk mengoptimalkan penggunaan perangkat digital dalam kehidupan sehari-hari.</p>
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>NIS</th>
+                                    <th>Nama</th>
+                                    <th>Kelas</th>
+                                    <th>Email</th>
+                                    <th>Status</th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="students-table-body">
+                                <!-- Data siswa akan diisi melalui JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
 
-                <div class="chapter">
-                    <h2>Bab 2: Memahami Dasar Teknologi</h2>
+                <!-- Attendance Page -->
+                <div id="attendance" class="page">
+                    <div class="page-header">
+                        <h2>Cek Absen Siswa</h2>
+                        <div class="date-picker">
+                            <input type="date" id="attendance-date">
+                        </div>
+                    </div>
                     
-                    <p>Sebelum kita melangkah lebih jauh, penting untuk memahami fondasi teknologi yang membentuk dunia digital saat ini. Teknologi bukan hanya tentang gadget dan aplikasi, tetapi juga tentang cara berpikir dan memecahkan masalah.</p>
+                    <div class="attendance-summary">
+                        <div class="summary-card">
+                            <h3>Hadir</h3>
+                            <p class="summary-number present">1,180</p>
+                        </div>
+                        <div class="summary-card">
+                            <h3>Sakit</h3>
+                            <p class="summary-number sick">45</p>
+                        </div>
+                        <div class="summary-card">
+                            <h3>Izin</h3>
+                            <p class="summary-number permission">12</p>
+                        </div>
+                        <div class="summary-card">
+                            <h3>Alpha</h3>
+                            <p class="summary-number absent">10</p>
+                        </div>
+                    </div>
                     
-                    <p>Konsep komputasi, jaringan, dan data telah berkembang pesat dalam beberapa dekade terakhir. Dari komputer raksasa yang memenuhi ruangan hingga smartphone yang muat di saku, evolusi teknologi telah mengubah cara kita hidup, bekerja, dan berkomunikasi.</p>
-                    
-                    <p>Dalam bab ini, kita akan menjelajahi sejarah teknologi, memahami prinsip-prinsip dasar yang mendasari perkembangan teknologi modern, dan melihat bagaimana teknologi telah mempengaruhi berbagai aspek kehidupan manusia.</p>
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>NIS</th>
+                                    <th>Nama</th>
+                                    <th>Kelas</th>
+                                    <th>Status</th>
+                                    <th>Waktu</th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="attendance-table-body">
+                                <!-- Data absensi akan diisi melalui JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
 
-                <div class="chapter">
-                    <h2>Bab 3: Strategi Produktivitas Digital</h2>
+                <!-- Schedule Page -->
+                <div id="schedule" class="page">
+                    <div class="page-header">
+                        <h2>Jadwal</h2>
+                        <button class="btn btn-primary" onclick="showAddScheduleModal()">
+                            <i class="fas fa-plus"></i> Tambah Jadwal
+                        </button>
+                    </div>
                     
-                    <p>Produktivitas di era digital membutuhkan pendekatan yang berbeda dari era sebelumnya. Dengan begitu banyak alat dan platform yang tersedia, mudah untuk terjebak dalam "paralysis by analysis" - terlalu banyak pilihan yang justru membuat kita tidak produktif.</p>
-                    
-                    <p>Kunci produktivitas digital terletak pada kemampuan untuk fokus, mengelola waktu dengan efektif, dan memanfaatkan teknologi sebagai alat, bukan sebagai pengalih perhatian. Kita perlu belajar untuk "mengendalikan teknologi" alih-alih "dikendalikan teknologi".</p>
-                    
-                    <p>Dalam bab ini, Anda akan menemukan strategi praktis untuk meningkatkan produktivitas, mengelola distraksi digital, dan menciptakan sistem kerja yang efisien dengan memanfaatkan teknologi yang tepat.</p>
+                    <div class="schedule-container">
+                        <div class="schedule-filters">
+                            <select id="class-filter">
+                                <option value="">Semua Kelas</option>
+                                <option value="10A">Kelas 10A</option>
+                                <option value="10B">Kelas 10B</option>
+                                <option value="11A">Kelas 11A</option>
+                                <option value="11B">Kelas 11B</option>
+                                <option value="12A">Kelas 12A</option>
+                                <option value="12B">Kelas 12B</option>
+                            </select>
+                        </div>
+                        
+                        <div class="schedule-grid" id="schedule-grid">
+                            <!-- Jadwal akan diisi melalui JavaScript -->
+                        </div>
+                    </div>
                 </div>
-            </div>
 
-            <!-- Navigation -->
-            <div class="book-navigation">
-                <button class="nav-btn" id="prev-page">
-                    <i class="fas fa-chevron-left"></i>
-                    Sebelumnya
-                </button>
-                <div class="page-info">
-                    <span>Halaman 1 dari 3</span>
+                <!-- Materials Page -->
+                <div id="materials" class="page">
+                    <div class="page-header">
+                        <h2>Materi Pembelajaran</h2>
+                        <button class="btn btn-primary" onclick="showAddMaterialModal()">
+                            <i class="fas fa-plus"></i> Tambah Materi
+                        </button>
+                    </div>
+                    
+                    <div class="materials-grid" id="materials-grid">
+                        <!-- Materi akan diisi melalui JavaScript -->
+                    </div>
                 </div>
-                <button class="nav-btn" id="next-page">
-                    Selanjutnya
-                    <i class="fas fa-chevron-right"></i>
-                </button>
+
+                <!-- Assignments Page -->
+                <div id="assignments" class="page">
+                    <div class="page-header">
+                        <h2>Tugas Harian</h2>
+                        <button class="btn btn-primary" onclick="showAddAssignmentModal()">
+                            <i class="fas fa-plus"></i> Tambah Tugas
+                        </button>
+                    </div>
+                    
+                    <div class="assignments-list" id="assignments-list">
+                        <!-- Tugas akan diisi melalui JavaScript -->
+                    </div>
+                </div>
+
+                <!-- Exams Page -->
+                <div id="exams" class="page">
+                    <div class="page-header">
+                        <h2>Ujian</h2>
+                        <button class="btn btn-primary" onclick="showAddExamModal()">
+                            <i class="fas fa-plus"></i> Buat Ujian
+                        </button>
+                    </div>
+                    
+                    <div class="exams-grid" id="exams-grid">
+                        <!-- Ujian akan diisi melalui JavaScript -->
+                    </div>
+                </div>
+
+                <!-- Grades Page -->
+                <div id="grades" class="page">
+                    <div class="page-header">
+                        <h2>Nilai</h2>
+                        <div class="grade-filters">
+                            <select id="grade-class-filter">
+                                <option value="">Semua Kelas</option>
+                                <option value="10A">Kelas 10A</option>
+                                <option value="10B">Kelas 10B</option>
+                                <option value="11A">Kelas 11A</option>
+                                <option value="11B">Kelas 11B</option>
+                                <option value="12A">Kelas 12A</option>
+                                <option value="12B">Kelas 12B</option>
+                            </select>
+                            <select id="grade-subject-filter">
+                                <option value="">Semua Mata Pelajaran</option>
+                                <option value="matematika">Matematika</option>
+                                <option value="bahasa-indonesia">Bahasa Indonesia</option>
+                                <option value="bahasa-inggris">Bahasa Inggris</option>
+                                <option value="fisika">Fisika</option>
+                                <option value="kimia">Kimia</option>
+                                <option value="biologi">Biologi</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="grades-chart">
+                        <canvas id="grades-chart"></canvas>
+                    </div>
+                    
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>NIS</th>
+                                    <th>Nama</th>
+                                    <th>Kelas</th>
+                                    <th>Mata Pelajaran</th>
+                                    <th>Nilai</th>
+                                    <th>Grade</th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="grades-table-body">
+                                <!-- Data nilai akan diisi melalui JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Settings Page -->
+                <div id="settings" class="page">
+                    <div class="page-header">
+                        <h2>Pengaturan</h2>
+                    </div>
+                    
+                    <div class="settings-container">
+                        <div class="settings-section">
+                            <h3>Pengaturan Umum</h3>
+                            <div class="setting-item">
+                                <label>Nama Sekolah</label>
+                                <input type="text" value="SMA Negeri 1 Jakarta" class="form-input">
+                            </div>
+                            <div class="setting-item">
+                                <label>Alamat</label>
+                                <textarea class="form-textarea">Jl. Pendidikan No. 123, Jakarta Pusat</textarea>
+                            </div>
+                            <div class="setting-item">
+                                <label>Email</label>
+                                <input type="email" value="info@sman1jakarta.sch.id" class="form-input">
+                            </div>
+                        </div>
+                        
+                        <div class="settings-section">
+                            <h3>Pengaturan Sistem</h3>
+                            <div class="setting-item">
+                                <label>Durasi Ujian Default (menit)</label>
+                                <input type="number" value="90" class="form-input">
+                            </div>
+                            <div class="setting-item">
+                                <label>Jumlah Soal Default</label>
+                                <input type="number" value="50" class="form-input">
+                            </div>
+                            <div class="setting-item">
+                                <label>Skala Nilai</label>
+                                <select class="form-select">
+                                    <option value="100">0-100</option>
+                                    <option value="10">0-10</option>
+                                    <option value="4">0-4</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="settings-section">
+                            <h3>Pengaturan Keamanan</h3>
+                            <div class="setting-item">
+                                <label>Ubah Password</label>
+                                <input type="password" placeholder="Password baru" class="form-input">
+                            </div>
+                            <div class="setting-item">
+                                <label>Konfirmasi Password</label>
+                                <input type="password" placeholder="Konfirmasi password" class="form-input">
+                            </div>
+                        </div>
+                        
+                        <div class="settings-actions">
+                            <button class="btn btn-primary">Simpan Pengaturan</button>
+                            <button class="btn btn-secondary">Reset ke Default</button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </main>
-
-        <!-- Footer -->
-        <footer class="ebook-footer">
-            <div class="footer-content">
-                <p>&copy; 2024 Digital Library. Dibuat dengan ❤️ untuk pembaca Indonesia.</p>
-                <div class="footer-links">
-                    <a href="#">Kebijakan Privasi</a>
-                    <a href="#">Syarat & Ketentuan</a>
-                    <a href="#">Kontak</a>
-                </div>
-            </div>
-        </footer>
     </div>
 
+    <!-- Modals -->
+    <div id="modal-overlay" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="modal-title">Modal Title</h3>
+                <button class="modal-close" onclick="closeModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body" id="modal-body">
+                <!-- Modal content will be inserted here -->
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="script.js"></script>
 </body>
 </html>

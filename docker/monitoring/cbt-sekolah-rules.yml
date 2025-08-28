@@ -1,0 +1,374 @@
+# Prometheus Alerting Rules for CBT Sekolah Application
+groups:
+  - name: cbt-sekolah-system
+    rules:
+      # System Down Alerts
+      - alert: CBTWebServerDown
+        expr: up{job="cbt-web"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: "cbt-web"
+        annotations:
+          summary: "CBT Web Server is down"
+          description: "CBT Web Server has been down for more than 1 minute"
+
+      - alert: CBTDatabaseDown
+        expr: up{job="mysql"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: "database"
+        annotations:
+          summary: "CBT Database is down"
+          description: "CBT Database has been down for more than 1 minute"
+
+      - alert: CBTRedisDown
+        expr: up{job="redis"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: "redis"
+        annotations:
+          summary: "CBT Redis Cache is down"
+          description: "CBT Redis Cache has been down for more than 1 minute"
+
+      - alert: CBTNginxDown
+        expr: up{job="nginx"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: "nginx"
+        annotations:
+          summary: "CBT Nginx Reverse Proxy is down"
+          description: "CBT Nginx Reverse Proxy has been down for more than 1 minute"
+
+  - name: cbt-sekolah-performance
+    rules:
+      # High Response Time Alerts
+      - alert: CBTHighResponseTime
+        expr: rate(http_request_duration_seconds_sum[5m]) / rate(http_request_duration_seconds_count[5m]) > 2
+        for: 5m
+        labels:
+          severity: warning
+          service: "cbt-web"
+        annotations:
+          summary: "CBT Application has high response time"
+          description: "CBT Application response time is above 2 seconds for more than 5 minutes"
+
+      - alert: CBTVeryHighResponseTime
+        expr: rate(http_request_duration_seconds_sum[5m]) / rate(http_request_duration_seconds_count[5m]) > 5
+        for: 2m
+        labels:
+          severity: critical
+          service: "cbt-web"
+        annotations:
+          summary: "CBT Application has very high response time"
+          description: "CBT Application response time is above 5 seconds for more than 2 minutes"
+
+      # High Error Rate Alerts
+      - alert: CBTHighErrorRate
+        expr: rate(http_requests_total{status=~"4..|5.."}[5m]) / rate(http_requests_total[5m]) > 0.05
+        for: 5m
+        labels:
+          severity: warning
+          service: "cbt-web"
+        annotations:
+          summary: "CBT Application has high error rate"
+          description: "CBT Application error rate is above 5% for more than 5 minutes"
+
+      - alert: CBTVeryHighErrorRate
+        expr: rate(http_requests_total{status=~"4..|5.."}[5m]) / rate(http_requests_total[5m]) > 0.1
+        for: 2m
+        labels:
+          severity: critical
+          service: "cbt-web"
+        annotations:
+          summary: "CBT Application has very high error rate"
+          description: "CBT Application error rate is above 10% for more than 2 minutes"
+
+  - name: cbt-sekolah-database
+    rules:
+      # Database Connection Alerts
+      - alert: CBTDatabaseHighConnections
+        expr: mysql_global_status_threads_connected / mysql_global_variables_max_connections > 0.8
+        for: 5m
+        labels:
+          severity: warning
+          service: "database"
+        annotations:
+          summary: "CBT Database has high connection usage"
+          description: "CBT Database connection usage is above 80% for more than 5 minutes"
+
+      - alert: CBTDatabaseMaxConnections
+        expr: mysql_global_status_threads_connected / mysql_global_variables_max_connections > 0.95
+        for: 2m
+        labels:
+          severity: critical
+          service: "database"
+        annotations:
+          summary: "CBT Database is near maximum connections"
+          description: "CBT Database connection usage is above 95% for more than 2 minutes"
+
+      # Database Performance Alerts
+      - alert: CBTDatabaseSlowQueries
+        expr: rate(mysql_global_status_slow_queries[5m]) > 10
+        for: 5m
+        labels:
+          severity: warning
+          service: "database"
+        annotations:
+          summary: "CBT Database has many slow queries"
+          description: "CBT Database is processing more than 10 slow queries per second for more than 5 minutes"
+
+  - name: cbt-sekolah-cache
+    rules:
+      # Redis Memory Alerts
+      - alert: CBTRedisHighMemory
+        expr: redis_memory_used_bytes / redis_memory_max_bytes > 0.8
+        for: 5m
+        labels:
+          severity: warning
+          service: "redis"
+        annotations:
+          summary: "CBT Redis has high memory usage"
+          description: "CBT Redis memory usage is above 80% for more than 5 minutes"
+
+      - alert: CBTRedisMaxMemory
+        expr: redis_memory_used_bytes / redis_memory_max_bytes > 0.95
+        for: 2m
+        labels:
+          severity: critical
+          service: "redis"
+        annotations:
+          summary: "CBT Redis is near maximum memory"
+          description: "CBT Redis memory usage is above 95% for more than 2 minutes"
+
+      # Redis Connection Alerts
+      - alert: CBTRedisHighConnections
+        expr: redis_connected_clients > 100
+        for: 5m
+        labels:
+          severity: warning
+          service: "redis"
+        annotations:
+          summary: "CBT Redis has high connection count"
+          description: "CBT Redis has more than 100 connected clients for more than 5 minutes"
+
+  - name: cbt-sekolah-application
+    rules:
+      # CBT Application Specific Alerts
+      - alert: CBTActiveUsersHigh
+        expr: cbt_active_users_total > 1000
+        for: 5m
+        labels:
+          severity: warning
+          service: "cbt-app"
+        annotations:
+          summary: "CBT Application has high number of active users"
+          description: "CBT Application has more than 1000 active users for more than 5 minutes"
+
+      - alert: CBTActiveExamsHigh
+        expr: cbt_active_exams_total > 50
+        for: 5m
+        labels:
+          severity: warning
+          service: "cbt-app"
+        annotations:
+          summary: "CBT Application has high number of active exams"
+          description: "CBT Application has more than 50 active exams for more than 5 minutes"
+
+      - alert: CBTQueueLengthHigh
+        expr: cbt_queue_length > 100
+        for: 5m
+        labels:
+          severity: warning
+          service: "cbt-app"
+        annotations:
+          summary: "CBT Application has high queue length"
+          description: "CBT Application queue length is above 100 for more than 5 minutes"
+
+      - alert: CBTQueueLengthCritical
+        expr: cbt_queue_length > 500
+        for: 2m
+        labels:
+          severity: critical
+          service: "cbt-app"
+        annotations:
+          summary: "CBT Application has critical queue length"
+          description: "CBT Application queue length is above 500 for more than 2 minutes"
+
+  - name: cbt-sekolah-backup
+    rules:
+      # Backup Alerts
+      - alert: CBTBackupFailed
+        expr: cbt_backup_last_success_timestamp < time() - 86400
+        for: 1h
+        labels:
+          severity: warning
+          service: "backup"
+        annotations:
+          summary: "CBT Backup has not run successfully in 24 hours"
+          description: "CBT Backup has not run successfully in the last 24 hours"
+
+      - alert: CBTBackupCritical
+        expr: cbt_backup_last_success_timestamp < time() - 172800
+        for: 1h
+        labels:
+          severity: critical
+          service: "backup"
+        annotations:
+          summary: "CBT Backup has not run successfully in 48 hours"
+          description: "CBT Backup has not run successfully in the last 48 hours"
+
+  - name: cbt-sekolah-system-resources
+    rules:
+      # System Resource Alerts
+      - alert: CBTHighCPUUsage
+        expr: 100 - (avg by (instance) (irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+        for: 5m
+        labels:
+          severity: warning
+          service: "system"
+        annotations:
+          summary: "CBT System has high CPU usage"
+          description: "CBT System CPU usage is above 80% for more than 5 minutes"
+
+      - alert: CBTCriticalCPUUsage
+        expr: 100 - (avg by (instance) (irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 95
+        for: 2m
+        labels:
+          severity: critical
+          service: "system"
+        annotations:
+          summary: "CBT System has critical CPU usage"
+          description: "CBT System CPU usage is above 95% for more than 2 minutes"
+
+      - alert: CBTHighMemoryUsage
+        expr: 100 - (avg by (instance) (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) * 100) > 80
+        for: 5m
+        labels:
+          severity: warning
+          service: "system"
+        annotations:
+          summary: "CBT System has high memory usage"
+          description: "CBT System memory usage is above 80% for more than 5 minutes"
+
+      - alert: CBTCriticalMemoryUsage
+        expr: 100 - (avg by (instance) (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) * 100) > 95
+        for: 2m
+        labels:
+          severity: critical
+          service: "system"
+        annotations:
+          summary: "CBT System has critical memory usage"
+          description: "CBT System memory usage is above 95% for more than 2 minutes"
+
+      - alert: CBTHighDiskUsage
+        expr: 100 - (node_filesystem_avail_bytes / node_filesystem_size_bytes * 100) > 80
+        for: 5m
+        labels:
+          severity: warning
+          service: "system"
+        annotations:
+          summary: "CBT System has high disk usage"
+          description: "CBT System disk usage is above 80% for more than 5 minutes"
+
+      - alert: CBTCriticalDiskUsage
+        expr: 100 - (node_filesystem_avail_bytes / node_filesystem_size_bytes * 100) > 95
+        for: 2m
+        labels:
+          severity: critical
+          service: "system"
+        annotations:
+          summary: "CBT System has critical disk usage"
+          description: "CBT System disk usage is above 95% for more than 2 minutes"
+
+  - name: cbt-sekolah-security
+    rules:
+      # Security Alerts
+      - alert: CBTHighFailedLogins
+        expr: rate(cbt_failed_login_attempts_total[5m]) > 10
+        for: 5m
+        labels:
+          severity: warning
+          service: "security"
+        annotations:
+          summary: "CBT Application has high failed login attempts"
+          description: "CBT Application has more than 10 failed login attempts per second for more than 5 minutes"
+
+      - alert: CBTSuspiciousActivity
+        expr: rate(cbt_suspicious_requests_total[5m]) > 5
+        for: 5m
+        labels:
+          severity: warning
+          service: "security"
+        annotations:
+          summary: "CBT Application has suspicious activity"
+          description: "CBT Application has more than 5 suspicious requests per second for more than 5 minutes"
+
+  - name: cbt-sekolah-exam-system
+    rules:
+      # Exam System Alerts
+      - alert: CBTExamSystemHighLoad
+        expr: rate(cbt_exam_requests_total[5m]) > 100
+        for: 5m
+        labels:
+          severity: warning
+          service: "exam-system"
+        annotations:
+          summary: "CBT Exam System has high load"
+          description: "CBT Exam System is processing more than 100 requests per second for more than 5 minutes"
+
+      - alert: CBTExamSystemErrors
+        expr: rate(cbt_exam_errors_total[5m]) > 10
+        for: 5m
+        labels:
+          severity: warning
+          service: "exam-system"
+        annotations:
+          summary: "CBT Exam System has errors"
+          description: "CBT Exam System is generating more than 10 errors per second for more than 5 minutes"
+
+      - alert: CBTExamTimeout
+        expr: cbt_exam_timeout_incidents_total > 0
+        for: 1m
+        labels:
+          severity: warning
+          service: "exam-system"
+        annotations:
+          summary: "CBT Exam System has timeout incidents"
+          description: "CBT Exam System has experienced timeout incidents"
+
+  - name: cbt-sekolah-file-system
+    rules:
+      # File System Alerts
+      - alert: CBTFileUploadErrors
+        expr: rate(cbt_file_upload_errors_total[5m]) > 5
+        for: 5m
+        labels:
+          severity: warning
+          service: "file-system"
+        annotations:
+          summary: "CBT File System has upload errors"
+          description: "CBT File System is generating more than 5 upload errors per second for more than 5 minutes"
+
+      - alert: CBTFileStorageHigh
+        expr: cbt_file_storage_usage_percent > 80
+        for: 5m
+        labels:
+          severity: warning
+          service: "file-system"
+        annotations:
+          summary: "CBT File Storage usage is high"
+          description: "CBT File Storage usage is above 80% for more than 5 minutes"
+
+      - alert: CBTFileStorageCritical
+        expr: cbt_file_storage_usage_percent > 95
+        for: 2m
+        labels:
+          severity: critical
+          service: "file-system"
+        annotations:
+          summary: "CBT File Storage usage is critical"
+          description: "CBT File Storage usage is above 95% for more than 2 minutes"

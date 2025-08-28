@@ -1,0 +1,99 @@
+apiVersion: 1
+
+contactPoints:
+  - name: 'CBT Admin Team'
+    receivers:
+      - uid: cbt_admin_email
+        type: email
+        settings:
+          addresses: admin@cbt-sekolah.local
+        disableResolveMessage: false
+      
+      - uid: cbt_admin_webhook
+        type: webhook
+        settings:
+          url: http://web:80/api/alerts/webhook
+          httpMethod: POST
+          username: alertmanager
+          password: cbt_webhook_password_2024
+        disableResolveMessage: false
+
+  - name: 'CBT DBA Team'
+    receivers:
+      - uid: cbt_dba_email
+        type: email
+        settings:
+          addresses: dba@cbt-sekolah.local
+        disableResolveMessage: false
+
+  - name: 'CBT Security Team'
+    receivers:
+      - uid: cbt_security_email
+        type: email
+        settings:
+          addresses: security@cbt-sekolah.local
+        disableResolveMessage: false
+
+  - name: 'CBT DevOps Team'
+    receivers:
+      - uid: cbt_devops_email
+        type: email
+        settings:
+          addresses: devops@cbt-sekolah.local
+        disableResolveMessage: false
+
+  - name: 'CBT Education Team'
+    receivers:
+      - uid: cbt_education_email
+        type: email
+        settings:
+          addresses: education@cbt-sekolah.local
+        disableResolveMessage: false
+
+notificationPolicies:
+  - orgId: 1
+    receiver: 'CBT Admin Team'
+    group_by: ['alertname', 'service', 'severity']
+    group_wait_time: 30s
+    group_interval_time: 5m
+    repeat_interval_time: 4h
+    routes:
+      - receiver: 'CBT Admin Team'
+        group_by: ['alertname', 'service', 'severity']
+        group_wait_time: 0s
+        group_interval_time: 1m
+        repeat_interval_time: 1h
+        matchers:
+          - severity = critical
+      
+      - receiver: 'CBT DBA Team'
+        group_by: ['alertname']
+        group_wait_time: 1m
+        group_interval_time: 2m
+        repeat_interval_time: 2h
+        matchers:
+          - service = database
+      
+      - receiver: 'CBT Security Team'
+        group_by: ['alertname']
+        group_wait_time: 0s
+        group_interval_time: 1m
+        repeat_interval_time: 30m
+        matchers:
+          - service = security
+      
+      - receiver: 'CBT DevOps Team'
+        group_by: ['alertname']
+        group_wait_time: 2m
+        group_interval_time: 5m
+        repeat_interval_time: 1h
+        matchers:
+          - service = "cbt-web"
+      
+      - receiver: 'CBT Education Team'
+        group_by: ['alertname']
+        group_wait_time: 1m
+        group_interval_time: 2m
+        repeat_interval_time: 1h
+        matchers:
+          - service = "exam-system"

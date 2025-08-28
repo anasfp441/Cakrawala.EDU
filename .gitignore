@@ -1,24 +1,553 @@
-# Compiled class file
-*.class
+# CBT Sekolah - Git Ignore File
+# File ini berisi daftar file dan folder yang tidak akan di-track oleh Git
 
-# Log file
+# Environment files
+.env
+.env.local
+.env.development
+.env.testing
+.env.production
+.env.staging
+
+# Configuration files
+config.php
+database.php
+*.config.php
+*.conf
+*.ini
+
+# Database files
+*.sql
+*.sqlite
+*.db
+backups/
+*.backup
+
+# Log files
+logs/
+*.log
+*.log.*
+error_log
+access_log
+
+# Cache files
+cache/
+*.cache
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+
+# Upload files
+uploads/
+public/uploads/
+storage/uploads/
+*.pdf
+*.doc
+*.docx
+*.ppt
+*.pptx
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.mp4
+*.avi
+*.mov
+
+# Dependencies
+vendor/
+node_modules/
+composer.lock
+package-lock.json
+yarn.lock
+
+# Build files
+dist/
+build/
+public/build/
+public/dist/
+*.min.js
+*.min.css
+*.map
+
+# IDE and Editor files
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+.project
+.settings/
+.classpath
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.backup
+*.old
+*.orig
+*.rej
+*.swp
+*.swo
+*~
+
+# Backup files
+*.tar
+*.tar.gz
+*.zip
+*.rar
+*.7z
+
+# SSL certificates
+ssl/
+*.pem
+*.key
+*.crt
+*.csr
+*.p12
+*.pfx
+
+# Docker files
+.dockerignore
+docker-compose.override.yml
+docker-compose.*.yml
+!docker-compose.yml
+
+# Testing files
+tests/coverage/
+phpunit.xml
+.phpunit.result.cache
+.phpunit.cache
+
+# Documentation build files
+docs/build/
+docs/_build/
+docs/html/
+docs/latex/
+
+# Application specific
+storage/framework/cache/
+storage/framework/sessions/
+storage/framework/views/
+storage/logs/
+storage/app/public/
+bootstrap/cache/
+
+# Composer
+composer.phar
+composer.lock
+
+# NPM
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage/
+*.lcov
+
+# nyc test coverage
+.nyc_output
+
+# Grunt intermediate storage
+.grunt
+
+# Bower dependency directory
+bower_components
+
+# node-waf configuration
+.lock-wscript
+
+# Compiled binary addons
+build/Release
+
+# Dependency directories
+jspm_packages/
+
+# TypeScript v1 declaration files
+typings/
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Microbundle cache
+.rpt2_cache/
+.rts2_cache_cjs/
+.rts2_cache_es/
+.rts2_cache_umd/
+
+# Optional REPL history
+.node_repl_history
+
+# Output of 'npm pack'
+*.tgz
+
+# Yarn Integrity file
+.yarn-integrity
+
+# dotenv environment variables file
+.env.test
+
+# parcel-bundler cache
+.cache
+.parcel-cache
+
+# Next.js build output
+.next
+
+# Nuxt.js build / generate output
+.nuxt
+dist
+
+# Gatsby files
+.cache/
+public
+
+# Storybook build outputs
+.out
+.storybook-out
+
+# Temporary folders
+tmp/
+temp/
+
+# Local development files
+local/
+dev/
+development/
+
+# Production files
+production/
+staging/
+
+# User uploaded content
+user_uploads/
+student_uploads/
+teacher_uploads/
+
+# Database dumps
+db_dumps/
+database_backups/
+
+# Configuration backups
+config_backups/
+
+# System files
+*.sys
+*.dll
+*.exe
+*.so
+*.dylib
+
+# Archive files
+*.tar
+*.tar.gz
+*.tar.bz2
+*.zip
+*.rar
+*.7z
+
+# Media files
+*.mp3
+*.mp4
+*.avi
+*.mov
+*.wmv
+*.flv
+*.webm
+
+# Font files
+*.ttf
+*.otf
+*.woff
+*.woff2
+*.eot
+
+# Image files (if not needed in repo)
+*.psd
+*.ai
+*.eps
+*.svg
+
+# Document files
+*.odt
+*.ods
+*.odp
+*.rtf
+
+# Executable files
+*.sh
+*.bat
+*.cmd
+*.com
+
+# Lock files
+*.lock
+.lock
+
+# Cache directories
+.cache/
+cache/
+tmp/
+temp/
+
+# Log directories
+logs/
+log/
 *.log
 
-# BlueJ files
-*.ctxt
+# Backup directories
+backup/
+backups/
+*.backup
+*.bak
 
-# Mobile Tools for Java (J2ME)
-.mtj.tmp/
+# Temporary directories
+tmp/
+temp/
+*.tmp
+*.temp
 
-# Package Files #
-*.jar
-*.war
-*.nar
-*.ear
+# IDE specific files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS specific files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Application specific ignores
+storage/
+bootstrap/cache/
+public/storage/
+public/uploads/
+public/backups/
+public/logs/
+
+# Security sensitive files
+*.key
+*.pem
+*.crt
+*.csr
+*.p12
+*.pfx
+*.pwd
+
+# Database files
+*.sql
+*.sqlite
+*.db
+*.mdb
+*.accdb
+
+# Configuration files with sensitive data
+config/database.php
+config/mail.php
+config/services.php
+config/session.php
+
+# Environment specific files
+.env.*
+!.env.example
+
+# Backup and archive files
+*.tar
 *.zip
-*.tar.gz
 *.rar
+backups/
 
-# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
-hs_err_pid*
-replay_pid*
+# Log files
+*.log
+logs/
+
+# Cache files
+*.cache
+cache/
+
+# Sessions
+sessions/
+*.sess
+
+# Upload directories
+uploads/
+user_uploads/
+file_uploads/
+
+# Test coverage
+coverage/
+*.lcov
+.nyc_output
+
+# Build artifacts
+build/
+dist/
+public/build/
+public/dist/
+
+# Dependencies
+vendor/
+node_modules/
+composer.lock
+package-lock.json
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.backup
+
+# SSL certificates
+ssl/
+*.pem
+*.key
+*.crt
+
+# Docker
+.dockerignore
+docker-compose.override.yml
+
+# Testing
+.phpunit.result.cache
+tests/coverage/
+
+# Documentation
+docs/build/
+docs/_build/
+
+# Application specific
+storage/framework/
+bootstrap/cache/
+public/storage/
+public/uploads/
+public/backups/
+public/logs/
+
+# Security
+*.key
+*.pem
+*.crt
+*.pwd
+
+# Database
+*.sql
+*.sqlite
+*.db
+
+# Configuration
+config/*.php
+!.env.example
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Backup
+*.tar
+*.zip
+*.rar
+backups/
+
+# Logs
+*.log
+logs/
+
+# Cache
+*.cache
+cache/
+
+# Sessions
+sessions/
+*.sess
+
+# Uploads
+uploads/
+user_uploads/
+
+# Coverage
+coverage/
+*.lcov
+
+# Build
+build/
+dist/
+
+# Dependencies
+vendor/
+node_modules/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temp
+*.tmp
+*.temp
+*.bak
+
+# SSL
+ssl/
+*.pem
+*.key
+*.crt
+
+# Docker
+.dockerignore
+docker-compose.override.yml
+
+# Testing
+.phpunit.result.cache
+tests/coverage/
+
+# Docs
+docs/build/
+docs/_build/
+
+# App specific
+storage/framework/
+bootstrap/cache/
+public/storage/
+public/uploads/
+public/backups/
+public/logs/
