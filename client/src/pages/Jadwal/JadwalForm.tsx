@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate, useParams } from 'react/react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import {
@@ -48,10 +48,17 @@ import { RootState, AppDispatch } from '../../store';
 const validationSchema = Yup.object({
   hari: Yup.string()
     .required('Hari wajib dipilih'),
-  jamMulai: Yup.string()
-    .required('Jam mulai wajib diisi'),
-  jamSelesai: Yup.string()
-    .required('Jam selesai wajib diisi'),
+  jamMulai: Yup.date()
+    .required('Jam mulai wajib diisi')
+    .nullable(),
+  jamSelesai: Yup.date()
+    .required('Jam selesai wajib diisi')
+    .nullable()
+    .test('jam-selesai', 'Jam selesai harus setelah jam mulai', function(value) {
+      const { jamMulai } = this.parent;
+      if (!jamMulai || !value) return true;
+      return value > jamMulai;
+    }),
   mataPelajaran: Yup.string()
     .required('Mata pelajaran wajib diisi'),
   kelas: Yup.string()
@@ -86,7 +93,8 @@ const JadwalForm: React.FC = () => {
     if (isEditMode && id) {
       dispatch(fetchJadwalById(id));
     }
-    dispatch(fetchSiswa({ limit: 1000, role: 'guru' })); // Fetch all teachers
+    // Fetch all users with guru role
+    dispatch(fetchSiswa({ limit: 1000, role: 'guru' }));
   }, [dispatch, id, isEditMode]);
 
   useEffect(() => {
@@ -120,8 +128,8 @@ const JadwalForm: React.FC = () => {
   const formik = useFormik({
     initialValues: {
       hari: currentJadwal?.hari || '',
-      jamMulai: currentJadwal?.jamMulai || '',
-      jamSelesai: currentJadwal?.jamSelesai || '',
+      jamMulai: null,
+      jamSelesai: null,
       mataPelajaran: currentJadwal?.mataPelajaran || '',
       kelas: currentJadwal?.kelas || '',
       jurusan: currentJadwal?.jurusan || '',
@@ -134,10 +142,14 @@ const JadwalForm: React.FC = () => {
     validationSchema,
     enableReinitialize: true,
     onSubmit: (values) => {
+      if (!jamMulai || !jamSelesai) {
+        return;
+      }
+      
       const jadwalData = {
         ...values,
-        jamMulai: jamMulai ? jamMulai.toTimeString().slice(0, 5) : '',
-        jamSelesai: jamSelesai ? jamSelesai.toTimeString().slice(0, 5) : '',
+        jamMulai: jamMulai.toTimeString().slice(0, 5),
+        jamSelesai: jamSelesai.toTimeString().slice(0, 5),
         durasi: durasi,
       };
 
@@ -205,12 +217,24 @@ const JadwalForm: React.FC = () => {
     <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
       {/* Header */}
       <Box display="flex" alignItems="center" mb={3}>
-        <IconButton onClick={handleCancel} sx={{ mr: 2 }}>
+        <IconButton 
+          onClick={handleCancel} 
+          sx={{ 
+            mr: 2,
+            bgcolor: 'grey.100',
+            '&:hover': { bgcolor: 'grey.200' }
+          }}
+        >
           <ArrowBack />
         </IconButton>
-        <Typography variant="h4" component="h1">
-          {isEditMode ? 'Edit Data Jadwal' : 'Tambah Data Jadwal'}
-        </Typography>
+        <Box>
+          <Typography variant="h4" component="h1" fontWeight="bold" color="primary.main">
+            {isEditMode ? 'Edit Data Jadwal' : 'Tambah Data Jadwal'}
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            {isEditMode ? 'Perbarui informasi jadwal yang sudah ada' : 'Buat jadwal baru untuk kelas dan mata pelajaran'}
+          </Typography>
+        </Box>
       </Box>
 
       {/* Error Message */}
@@ -224,9 +248,9 @@ const JadwalForm: React.FC = () => {
         <Grid container spacing={3}>
           {/* Left Column - Main Form */}
           <Grid item xs={12} md={8}>
-            <Paper elevation={2} sx={{ p: 3 }}>
+            <Paper elevation={2} sx={{ p: 3, borderRadius: 2 }}>
               <Typography variant="h6" gutterBottom sx={{ display: 'flex', alignItems: 'center' }}>
-                <Schedule sx={{ mr: 1 }} />
+                <Schedule sx={{ mr: 1, color: 'primary.main' }} />
                 Informasi Jadwal
               </Typography>
               <Divider sx={{ mb: 3 }} />
@@ -245,20 +269,22 @@ const JadwalForm: React.FC = () => {
                       error={formik.touched.hari && Boolean(formik.errors.hari)}
                       disabled={isLoading}
                       label="Hari"
-                    >
-                      {hariOptions.map((hari) => (
-                        <MenuItem key={hari} value={hari}>
-                          <Box display="flex" alignItems="center">
-                            <Chip
-                              label={hari}
-                              size="small"
-                              color={getHariColor(hari)}
-                              sx={{ mr: 1 }}
-                            />
-                            {hari}
-                          </Box>
-                        </MenuItem>
-                      ))}
+                                         >
+                       {hariOptions.map((hari) => (
+                         <MenuItem key={hari} value={hari}>
+                           <Box display="flex" alignItems="center">
+                             <Chip
+                               label={hari}
+                               size="small"
+                               color={getHariColor(hari)}
+                               sx={{ mr: 1, minWidth: 60 }}
+                             />
+                             <Typography variant="body2" fontWeight="medium">
+                               {hari}
+                             </Typography>
+                           </Box>
+                         </MenuItem>
+                       ))}
                     </Select>
                   </FormControl>
                   {formik.touched.hari && formik.errors.hari && (
@@ -281,12 +307,17 @@ const JadwalForm: React.FC = () => {
                       error={formik.touched.mataPelajaran && Boolean(formik.errors.mataPelajaran)}
                       disabled={isLoading}
                       label="Mata Pelajaran"
-                    >
-                      {mataPelajaranOptions.map((mapel) => (
-                        <MenuItem key={mapel} value={mapel}>
-                          {mapel}
-                        </MenuItem>
-                      ))}
+                                         >
+                       {mataPelajaranOptions.map((mapel) => (
+                         <MenuItem key={mapel} value={mapel}>
+                           <Box display="flex" alignItems="center">
+                             <School sx={{ mr: 1, color: 'primary.main', fontSize: 20 }} />
+                             <Typography variant="body2">
+                               {mapel}
+                             </Typography>
+                           </Box>
+                         </MenuItem>
+                       ))}
                     </Select>
                   </FormControl>
                   {formik.touched.mataPelajaran && formik.errors.mataPelajaran && (
@@ -300,7 +331,10 @@ const JadwalForm: React.FC = () => {
                   <TimePicker
                     label="Jam Mulai"
                     value={jamMulai}
-                    onChange={setJamMulai}
+                    onChange={(newValue) => {
+                      setJamMulai(newValue);
+                      formik.setFieldValue('jamMulai', newValue);
+                    }}
                     slotProps={{
                       textField: {
                         fullWidth: true,
@@ -317,7 +351,10 @@ const JadwalForm: React.FC = () => {
                   <TimePicker
                     label="Jam Selesai"
                     value={jamSelesai}
-                    onChange={setJamSelesai}
+                    onChange={(newValue) => {
+                      setJamSelesai(newValue);
+                      formik.setFieldValue('jamSelesai', newValue);
+                    }}
                     slotProps={{
                       textField: {
                         fullWidth: true,
@@ -336,12 +373,13 @@ const JadwalForm: React.FC = () => {
                     id="durasi"
                     name="durasi"
                     label="Durasi (menit)"
-                    value={durasi}
+                    value={durasi > 0 ? `${durasi} menit` : '-'}
                     InputProps={{
                       readOnly: true,
                       startAdornment: <AccessTime sx={{ mr: 1, color: 'text.secondary' }} />,
                     }}
-                    helperText="Durasi dihitung otomatis dari jam mulai dan selesai"
+                    helperText={durasi > 0 ? `Durasi: ${durasi} menit` : 'Pilih jam mulai dan selesai'}
+                    color={durasi > 0 ? 'success' : 'default'}
                   />
                 </Grid>
 
@@ -359,16 +397,34 @@ const JadwalForm: React.FC = () => {
                     disabled={isLoading}
                     required
                     placeholder="Contoh: Lab 1, Ruang 101"
+                    InputProps={{
+                      startAdornment: <Room sx={{ mr: 1, color: 'text.secondary' }} />,
+                    }}
                   />
                 </Grid>
 
                 <Grid item xs={12}>
                   <Autocomplete
-                    options={siswa}
+                    options={siswa.filter(s => s.role === 'guru')}
                     getOptionLabel={(option) => `${option.nama} - ${option.email}`}
                     value={selectedGuru}
                     onChange={handleGuruChange}
                     disabled={isLoading}
+                    renderOption={(props, option) => (
+                      <Box component="li" {...props}>
+                        <Box display="flex" alignItems="center">
+                          <Person sx={{ mr: 1, color: 'primary.main', fontSize: 20 }} />
+                          <Box>
+                            <Typography variant="body2" fontWeight="medium">
+                              {option.nama}
+                            </Typography>
+                            <Typography variant="caption" color="text.secondary">
+                              {option.email}
+                            </Typography>
+                          </Box>
+                        </Box>
+                      </Box>
+                    )}
                     renderInput={(params) => (
                       <TextField
                         {...params}
@@ -376,6 +432,7 @@ const JadwalForm: React.FC = () => {
                         required
                         error={formik.touched.guru && Boolean(formik.errors.guru)}
                         helperText={formik.touched.guru && formik.errors.guru}
+                        placeholder="Ketik nama guru..."
                       />
                     )}
                   />
@@ -384,9 +441,9 @@ const JadwalForm: React.FC = () => {
             </Paper>
 
             {/* Academic Information */}
-            <Paper elevation={2} sx={{ p: 3, mt: 3 }}>
+            <Paper elevation={2} sx={{ p: 3, mt: 3, borderRadius: 2 }}>
               <Typography variant="h6" gutterBottom sx={{ display: 'flex', alignItems: 'center' }}>
-                <School sx={{ mr: 1 }} />
+                <School sx={{ mr: 1, color: 'secondary.main' }} />
                 Informasi Akademik
               </Typography>
               <Divider sx={{ mb: 3 }} />
@@ -405,12 +462,17 @@ const JadwalForm: React.FC = () => {
                       error={formik.touched.kelas && Boolean(formik.errors.kelas)}
                       disabled={isLoading}
                       label="Kelas"
-                    >
-                      {kelasOptions.map((kelas) => (
-                        <MenuItem key={kelas} value={kelas}>
-                          {kelas}
-                        </MenuItem>
-                      ))}
+                                         >
+                       {kelasOptions.map((kelas) => (
+                         <MenuItem key={kelas} value={kelas}>
+                           <Box display="flex" alignItems="center">
+                             <Class sx={{ mr: 1, color: 'secondary.main', fontSize: 20 }} />
+                             <Typography variant="body2" fontWeight="medium">
+                               Kelas {kelas}
+                             </Typography>
+                           </Box>
+                         </MenuItem>
+                       ))}
                     </Select>
                   </FormControl>
                   {formik.touched.kelas && formik.errors.kelas && (
@@ -433,12 +495,17 @@ const JadwalForm: React.FC = () => {
                       error={formik.touched.jurusan && Boolean(formik.errors.jurusan)}
                       disabled={isLoading}
                       label="Jurusan"
-                    >
-                      {jurusanOptions.map((jurusan) => (
-                        <MenuItem key={jurusan} value={jurusan}>
-                          {jurusan}
-                        </MenuItem>
-                      ))}
+                                         >
+                       {jurusanOptions.map((jurusan) => (
+                         <MenuItem key={jurusan} value={jurusan}>
+                           <Box display="flex" alignItems="center">
+                             <Business sx={{ mr: 1, color: 'info.main', fontSize: 20 }} />
+                             <Typography variant="body2" fontWeight="medium">
+                               {jurusan}
+                             </Typography>
+                           </Box>
+                         </MenuItem>
+                       ))}
                     </Select>
                   </FormControl>
                   {formik.touched.jurusan && formik.errors.jurusan && (
@@ -461,12 +528,22 @@ const JadwalForm: React.FC = () => {
                       error={formik.touched.semester && Boolean(formik.errors.semester)}
                       disabled={isLoading}
                       label="Semester"
-                    >
-                      {semesterOptions.map((semester) => (
-                        <MenuItem key={semester} value={semester}>
-                          {semester}
-                        </MenuItem>
-                      ))}
+                                         >
+                       {semesterOptions.map((semester) => (
+                         <MenuItem key={semester} value={semester}>
+                           <Box display="flex" alignItems="center">
+                             <Chip
+                               label={semester}
+                               size="small"
+                               color={semester === 'Ganjil' ? 'primary' : 'secondary'}
+                               sx={{ mr: 1 }}
+                             />
+                             <Typography variant="body2">
+                               Semester {semester}
+                             </Typography>
+                           </Box>
+                         </MenuItem>
+                       ))}
                     </Select>
                   </FormControl>
                   {formik.touched.semester && formik.errors.semester && (
@@ -490,6 +567,9 @@ const JadwalForm: React.FC = () => {
                     disabled={isLoading}
                     required
                     placeholder="2023/2024"
+                    InputProps={{
+                      startAdornment: <School sx={{ mr: 1, color: 'text.secondary' }} />,
+                    }}
                   />
                 </Grid>
               </Grid>
@@ -501,10 +581,12 @@ const JadwalForm: React.FC = () => {
             <Grid container spacing={3}>
               {/* Schedule Settings */}
               <Grid item xs={12}>
-                <Paper elevation={2} sx={{ p: 3 }}>
-                  <Typography variant="h6" gutterBottom>
+                <Paper elevation={2} sx={{ p: 3, borderRadius: 2 }}>
+                  <Typography variant="h6" gutterBottom sx={{ display: 'flex', alignItems: 'center' }}>
+                    <Schedule sx={{ mr: 1, color: 'primary.main' }} />
                     Pengaturan Jadwal
                   </Typography>
+                  <Divider sx={{ mb: 2 }} />
                   <Box display="flex" flexDirection="column" gap={2}>
                     <FormControlLabel
                       control={
@@ -512,6 +594,7 @@ const JadwalForm: React.FC = () => {
                           checked={formik.values.isActive}
                           onChange={(e) => formik.setFieldValue('isActive', e.target.checked)}
                           color="success"
+                          size="medium"
                         />
                       }
                       label={
@@ -521,36 +604,53 @@ const JadwalForm: React.FC = () => {
                           ) : (
                             <Warning sx={{ color: 'warning.main', mr: 1 }} />
                           )}
-                          <Typography variant="body2">
+                          <Typography variant="body2" fontWeight="medium">
                             {formik.values.isActive ? 'Jadwal Aktif' : 'Jadwal Tidak Aktif'}
                           </Typography>
                         </Box>
                       }
                     />
+                    <Box sx={{ 
+                      p: 2, 
+                      bgcolor: formik.values.isActive ? 'success.light' : 'warning.light',
+                      borderRadius: 1,
+                      border: `1px solid ${formik.values.isActive ? 'success.main' : 'warning.main'}`
+                    }}>
+                      <Typography variant="caption" color={formik.values.isActive ? 'success.dark' : 'warning.dark'}>
+                        {formik.values.isActive 
+                          ? 'Jadwal ini akan muncul di kalender siswa dan guru'
+                          : 'Jadwal ini tidak akan muncul di kalender dan tidak dapat diakses'
+                        }
+                      </Typography>
+                    </Box>
                   </Box>
                 </Paper>
               </Grid>
 
               {/* Action Buttons */}
               <Grid item xs={12}>
-                <Paper elevation={2} sx={{ p: 3 }}>
-                  <Typography variant="h6" gutterBottom>
+                <Paper elevation={2} sx={{ p: 3, borderRadius: 2 }}>
+                  <Typography variant="h6" gutterBottom sx={{ display: 'flex', alignItems: 'center' }}>
+                    <Save sx={{ mr: 1, color: 'primary.main' }} />
                     Aksi
                   </Typography>
+                  <Divider sx={{ mb: 2 }} />
                   <Box display="flex" flexDirection="column" gap={2}>
                     <Button
                       type="submit"
                       variant="contained"
                       fullWidth
-                      startIcon={<Save />}
+                      startIcon={isLoading ? <CircularProgress size={20} /> : <Save />}
                       disabled={isLoading}
                       size="large"
+                      sx={{
+                        py: 1.5,
+                        fontWeight: 'bold',
+                        textTransform: 'none',
+                        fontSize: '1rem'
+                      }}
                     >
-                      {isLoading ? (
-                        <CircularProgress size={24} />
-                      ) : (
-                        isEditMode ? 'Update Jadwal' : 'Simpan Jadwal'
-                      )}
+                      {isLoading ? 'Menyimpan...' : (isEditMode ? 'Update Jadwal' : 'Simpan Jadwal')}
                     </Button>
                     <Button
                       variant="outlined"
@@ -558,6 +658,11 @@ const JadwalForm: React.FC = () => {
                       onClick={handleCancel}
                       disabled={isLoading}
                       size="large"
+                      sx={{
+                        py: 1.5,
+                        textTransform: 'none',
+                        fontSize: '1rem'
+                      }}
                     >
                       Batal
                     </Button>
@@ -567,20 +672,37 @@ const JadwalForm: React.FC = () => {
 
               {/* Quick Guide */}
               <Grid item xs={12}>
-                <Paper elevation={2} sx={{ p: 3 }}>
-                  <Typography variant="h6" gutterBottom>
+                <Paper elevation={2} sx={{ p: 3, borderRadius: 2 }}>
+                  <Typography variant="h6" gutterBottom sx={{ display: 'flex', alignItems: 'center' }}>
+                    <Warning sx={{ mr: 1, color: 'warning.main' }} />
                     Panduan
                   </Typography>
-                  <Box display="flex" flexDirection="column" gap={1}>
-                    <Typography variant="body2" color="text.secondary">
-                      • Pastikan tidak ada konflik jadwal dengan kelas dan guru yang sama
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      • Durasi akan dihitung otomatis dari jam mulai dan selesai
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      • Jadwal yang tidak aktif tidak akan muncul di kalender siswa
-                    </Typography>
+                  <Divider sx={{ mb: 2 }} />
+                  <Box display="flex" flexDirection="column" gap={2}>
+                    <Box sx={{ 
+                      p: 2, 
+                      bgcolor: 'info.light', 
+                      borderRadius: 1,
+                      border: '1px solid info.main'
+                    }}>
+                      <Typography variant="body2" color="info.dark" sx={{ mb: 1, fontWeight: 'medium' }}>
+                        Tips Pengisian:
+                      </Typography>
+                      <Box component="ul" sx={{ m: 0, pl: 2 }}>
+                        <Typography component="li" variant="body2" color="info.dark" sx={{ mb: 0.5 }}>
+                          Pastikan tidak ada konflik jadwal dengan kelas dan guru yang sama
+                        </Typography>
+                        <Typography component="li" variant="body2" color="info.dark" sx={{ mb: 0.5 }}>
+                          Durasi akan dihitung otomatis dari jam mulai dan selesai
+                        </Typography>
+                        <Typography component="li" variant="body2" color="info.dark" sx={{ mb: 0.5 }}>
+                          Jadwal yang tidak aktif tidak akan muncul di kalender siswa
+                        </Typography>
+                        <Typography component="li" variant="body2" color="info.dark">
+                          Gunakan ruangan yang tersedia dan tidak bentrok dengan jadwal lain
+                        </Typography>
+                      </Box>
+                    </Box>
                   </Box>
                 </Paper>
               </Grid>
